@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Build Output
+_site/
+
+# System Files
+.DS_Store
+.env
