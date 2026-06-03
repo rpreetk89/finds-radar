@@ -1,12 +1,24 @@
+---
+pagination:
+  data: collections.customCategories
+  size: 1
+  alias: category
+permalink: "/{{ category | slugify }}/index.html"
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Finds | Finds Radar</title>
+    <title>{{ category | capitalize }} Finds | FindsRadar</title>
     <style>
-        /* (We use the exact same layout engine as your homepage) */
-        :root { --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --accent: #ff4757; --accent-hover: #e03d4b; --radius: 16px; --shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05); }
+        /* Shared layout style engine rules */
+        :root {
+            --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a;
+            --text-muted: #64748b; --accent: #ff4757; --accent-hover: #e03d4b;
+            --radius: 16px; --shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+            --shadow-hover: 0 20px 25px -5px rgba(15, 23, 42, 0.1);
+        }
         body { font-family: -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; }
         header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.25rem; font-weight: 800; text-decoration: none; color: inherit; }
@@ -18,7 +30,8 @@
         .pill:hover, .pill.active { background: var(--text-main); color: white; border-color: var(--text-main); }
         .feed-container { max-width: 1200px; margin: 0 auto; padding: 0 24px 80px 24px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
-        .product-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(226, 232, 240, 0.7); }
+        .product-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; transition: all 0.25s ease; border: 1px solid rgba(226, 232, 240, 0.7); }
+        .product-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
         .image-wrapper { position: relative; width: 100%; padding-top: 75%; background: #f1f5f9; overflow: hidden; }
         .image-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .badge { position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
@@ -33,41 +46,48 @@
 <body>
 
     <header>
-        <a href="/" class="logo">🛰️ Finds Radar</a>
+        <a href="/" class="logo">🛰️ FindsRadar</a>
         <a href="/" class="pill">Back Home</a>
     </header>
 
     <div class="hero">
-        <h1>Trending home Finds</h1>
-        <p>Curated list of the top-rated items tagged under home this week.</p>
+        <h1>Trending {{ category }} Finds</h1>
+        <p>Curated list of top-rated items tagged under {{ category }} this week.</p>
+        
+        <div class="filters">
+            <a href="/" class="pill">🔥 All Finds</a>
+            <a href="/gadgets/" class="pill {% if category == 'gadgets' %}active{% endif %}">⚙️ Gadgets</a>
+            <a href="/travel/" class="pill {% if category == 'travel' %}active{% endif %}">✈️ Travel</a>
+            <a href="/home/" class="pill {% if category == 'home' %}active{% endif %}">🏠 Home</a>
+        </div>
     </div>
 
     <main class="feed-container">
         <div class="grid">
-            
-            
-                
-            
-                
-            
-                
+            {% set itemsFound = false %}
+            {% for product in products.products %}
+                {% if product.categories and product.categories.includes(category) %}
+                {% set itemsFound = true %}
                 <div class="product-card">
                     <div class="image-wrapper">
-                        <span class="badge">home</span>
-                        <img src="https://images.unsplash.com/photo-1507646227500-4d389b0012be?auto=format&fit=crop&w=600&q=80" alt="Smart Ambient Sunset Lamp">
+                        <span class="badge">{{ category }}</span>
+                        <img src="{{ product.image }}" alt="{{ product.title }}">
                     </div>
                     <div class="card-content">
-                        <h3>Smart Ambient Sunset Lamp</h3>
-                        <p>Cast studio-grade warm sunset lighting across any room. App-controlled with customizable colors.</p>
+                        <h3>{{ product.title }}</h3>
+                        <p>{{ product.description }}</p>
                         <div class="card-footer">
-                            <span class="price">$24.50</span>
-                            <a href="https://amazon.com" class="btn-action">Check Deal</a>
+                            <span class="price">{{ product.price }}</span>
+                            <a href="{{ product.url }}" class="btn-action">Check Deal</a>
                         </div>
                     </div>
                 </div>
-                
-            
+                {% endif %}
+            {% endfor %}
 
+            {% if not itemsFound %}
+                <p>No products listed in this category yet.</p>
+            {% endif %}
         </div>
     </main>
 

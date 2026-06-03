@@ -1,3 +1,6 @@
+---
+permalink: /
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +8,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FindsRadar | Hot Product Discoveries</title>
     <style>
-        /* (Keeping your beautiful design variables & styles exactly the same) */
         :root {
             --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a;
             --text-muted: #64748b; --accent: #ff4757; --accent-hover: #e03d4b;
@@ -57,24 +59,27 @@
 
     <main class="feed-container">
         <div class="grid">
-            
-            {% for product in products.products %}
-            <div class="product-card">
-                <div class="image-wrapper">
-                    <span class="badge">{{ product.categories[0] }}</span>
-                    <img src="{{ product.image }}" alt="{{ product.title }}">
-                </div>
-                <div class="card-content">
-                    <h3>{{ product.title }}</h3>
-                    <p>{{ product.description }}</p>
-                    <div class="card-footer">
-                        <span class="price">{{ product.price }}</span>
-                        <a href="{{ product.url }}" class="btn-action">Check Deal</a>
+            {% if products and products.products %}
+                {% for product in products.products %}
+                <div class="product-card">
+                    <div class="image-wrapper">
+                        <span class="badge">{{ product.categories[0] }}</span>
+                        <img src="{{ product.image }}" alt="{{ product.title }}">
+                    </div>
+                    <div class="card-content">
+                        <h3>{{ product.title }}</h3>
+                        <p>{{ product.description }}</p>
+                        <div class="card-footer">
+                            <span class="price">{{ product.price }}</span>
+                            <a href="{{ product.url }}" class="btn-action">Check Deal</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-            </div>
+                {% endfor %}
+            {% else %}
+                <p>No products found. Check your _data/products.json file setup.</p>
+            {% endif %}
+        </div>
     </main>
 
 </body>

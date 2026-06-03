@@ -1,0 +1,29 @@
+backend:
+  name: github
+  repo: rpreetk89/finds-radar
+  branch: main
+  base_url: https://still-mouse-cffe.rpreetk-89.workers.dev
+  auth_endpoint: auth
+
+media_folder: "images"
+public_folder: "/images"
+
+collections:
+  - name: "products"
+    label: "Products Data"
+    files:
+      - file: "_data/products.json"
+        label: "Product Inventory List"
+        name: "products_file"
+        json_root: "products" # 👈 This forces Decap to specifically look inside the "products" key!
+        fields:
+          - label: "All Products"
+            name: "products"
+            widget: "list"
+            fields:
+              - { label: "Product Title", name: "title", widget: "string" }
+              - { label: "Price", name: "price", widget: "string" }
+              - { label: "Affiliate URL Link", name: "url", widget: "string" }
+              - { label: "Image URL", name: "image", widget: "string" }
+              - { label: "Short Description", name: "description", widget: "text" }
+              - { label: "Categories (Tags)", name: "categories", widget: "list" }
