@@ -13,6 +13,8 @@ module.exports = function(eleventyConfig) {
     });
 
     // Return a clean array of unique tag strings like ['gadgets', 'travel', 'home']
+    // Copy the admin dashboard files straight to the built website
+  eleventyConfig.addPassthroughCopy("admin");
     return Array.from(categorySet);
   });
 };

@@ -1,0 +1,27 @@
+backend:
+  name: github
+  repo: rpreetk89/finds-radar # 👈 Replace with your exact GitHub Username/Repo
+  branch: main
+
+media_folder: "images" # Where uploaded product images go
+public_folder: "/images"
+
+collections:
+  - name: "data"
+    label: "Inventory Data"
+    files:
+      - file: "_data/products.json"
+        label: "Product Inventory"
+        name: "products"
+        fields:
+          - label: "Product Grid List"
+            name: "products"
+            widget: "list"
+            summary: "{{fields.title}} - {{fields.price}}"
+            fields:
+              - { label: "Product Title", name: "title", widget: "string" }
+              - { label: "Price", name: "price", widget: "string" }
+              - { label: "Affiliate URL Link", name: "url", widget: "string" }
+              - { label: "Image URL", name: "image", widget: "string" }
+              - { label: "Short Description", name: "description", widget: "text" }
+              - { label: "Categories (Tags)", name: "categories", widget: "list", default: ["gadgets"] }
