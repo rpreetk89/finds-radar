@@ -1,9 +1,8 @@
 module.exports = function(eleventyConfig) {
-  
-  // Force Eleventy to copy your CMS admin dashboard into the deployment folder
+  // Ensure the admin dashboard copies over
   eleventyConfig.addPassthroughCopy("admin");
 
-  // Custom collection to gather unique categories safely splitting comma strings
+  // Build unique categories cleanly from your array data
   eleventyConfig.addCollection("customCategories", function(collectionApi) {
     let productsData;
     try {
@@ -15,13 +14,8 @@ module.exports = function(eleventyConfig) {
     const categorySet = new Set();
     if (Array.isArray(productsData)) {
       productsData.forEach(product => {
-        if (product.categories) {
-          // If the CMS saves it as a single string like "home, travel", split it!
-          const rawCategories = Array.isArray(product.categories) 
-            ? product.categories 
-            : String(product.categories).split(",");
-
-          rawCategories.forEach(cat => {
+        if (Array.isArray(product.categories)) {
+          product.categories.forEach(cat => {
             if (cat) categorySet.add(cat.toLowerCase().trim());
           });
         }
@@ -31,11 +25,7 @@ module.exports = function(eleventyConfig) {
   });
 
   return {
-    dir: {
-      input: ".",
-      output: "_site",
-      data: "_data"
-    },
+    dir: { input: ".", output: "_site", data: "_data" },
     templateFormats: ["html", "njk", "md"],
     htmlTemplateEngine: "njk",
     markdownTemplateEngine: "njk"
