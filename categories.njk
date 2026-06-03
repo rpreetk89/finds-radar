@@ -67,7 +67,10 @@ permalink: "/{{ category | slugify }}/index.html"
             {% if products and products.products %}
                 {% for product in products.products %}
                     {% set match = false %}
-                    {% for cat in product.categories %}
+                    {# Ensure we convert whatever data format the CMS outputs into a clean string array check #}
+                    {% set productCats = product.categories if iterable else String(product.categories).split(",") %}
+                    
+                    {% for cat in productCats %}
                         {% if cat.toLowerCase().trim() == category.toLowerCase().trim() %}
                             {% set match = true %}
                         {% endif %}
