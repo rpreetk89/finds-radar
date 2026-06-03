@@ -6,7 +6,19 @@
       "url": "https://findsradar.com",
       "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop",
       "description": "If you see this card, your dashboard map structure matches perfectly.",
-      "categories": ["gadgets"]
+      "categories": [
+        "gadgets"
+      ]
+    },
+    {
+      "title": "sacasd",
+      "price": "sav",
+      "url": "sav",
+      "image": "sav",
+      "description": "asv",
+      "categories": [
+        "asv"
+      ]
     }
   ]
 }
