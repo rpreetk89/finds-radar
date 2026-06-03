@@ -9,6 +9,16 @@
       "categories": [
         "gadgets"
       ]
+    },
+    {
+      "title": "dvsd",
+      "price": "ds",
+      "url": "dsv",
+      "image": "dsfb",
+      "description": "dsfb",
+      "categories": [
+        "dsb"
+      ]
     }
   ]
 }
