@@ -12,7 +12,6 @@ permalink: "/{{ category | slugify }}/index.html"
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ category | capitalize }} Finds | FindsRadar</title>
     <style>
-        /* Shared layout style engine rules */
         :root {
             --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a;
             --text-muted: #64748b; --accent: #ff4757; --accent-hover: #e03d4b;
@@ -51,7 +50,7 @@ permalink: "/{{ category | slugify }}/index.html"
     </header>
 
     <div class="hero">
-        <h1>Trending {{ category }} Finds</h1>
+        <h1>Trending {{ category | capitalize }} Finds</h1>
         <p>Curated list of top-rated items tagged under {{ category }} this week.</p>
         
         <div class="filters">
@@ -65,25 +64,34 @@ permalink: "/{{ category | slugify }}/index.html"
     <main class="feed-container">
         <div class="grid">
             {% set itemsFound = false %}
-            {% for product in products.products %}
-                {% if product.categories and product.categories.includes(category) %}
-                {% set itemsFound = true %}
-                <div class="product-card">
-                    <div class="image-wrapper">
-                        <span class="badge">{{ category }}</span>
-                        <img src="{{ product.image }}" alt="{{ product.title }}">
-                    </div>
-                    <div class="card-content">
-                        <h3>{{ product.title }}</h3>
-                        <p>{{ product.description }}</p>
-                        <div class="card-footer">
-                            <span class="price">{{ product.price }}</span>
-                            <a href="{{ product.url }}" class="btn-action">Check Deal</a>
+            {% if products and products.products %}
+                {% for product in products.products %}
+                    {% set match = false %}
+                    {% for cat in product.categories %}
+                        {% if cat.toLowerCase().trim() == category.toLowerCase().trim() %}
+                            {% set match = true %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if match %}
+                    {% set itemsFound = true %}
+                    <div class="product-card">
+                        <div class="image-wrapper">
+                            <span class="badge">{{ category }}</span>
+                            <img src="{{ product.image }}" alt="{{ product.title }}">
+                        </div>
+                        <div class="card-content">
+                            <h3>{{ product.title }}</h3>
+                            <p>{{ product.description }}</p>
+                            <div class="card-footer">
+                                <span class="price">{{ product.price }}</span>
+                                <a href="{{ product.url }}" class="btn-action">Check Deal</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                {% endif %}
-            {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
 
             {% if not itemsFound %}
                 <p>No products listed in this category yet.</p>

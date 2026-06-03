@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FindsRadar | Hot Product Discoveries</title>
+    <title>Gadgets Finds | FindsRadar</title>
     <style>
+        /* Shared layout style engine rules */
         :root {
             --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a;
             --text-muted: #64748b; --accent: #ff4757; --accent-hover: #e03d4b;
@@ -15,7 +16,7 @@
         header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.25rem; font-weight: 800; text-decoration: none; color: inherit; }
         .hero { max-width: 800px; margin: 60px auto 40px auto; text-align: center; padding: 0 20px; }
-        .hero h1 { font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 16px; }
+        .hero h1 { font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 16px; text-transform: capitalize; }
         .hero p { color: var(--text-muted); font-size: 1.25rem; }
         .filters { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
         .pill { background: var(--card-bg); border: 1px solid #e2e8f0; padding: 8px 18px; border-radius: 100px; font-weight: 600; font-size: 0.9rem; text-decoration: none; color: inherit; }
@@ -38,25 +39,27 @@
 <body>
 
     <header>
-        <div class="logo">🛰️ FindsRadar</div>
-        <a href="/" class="pill active">US</a>
+        <a href="/" class="logo">🛰️ FindsRadar</a>
+        <a href="/" class="pill">Back Home</a>
     </header>
 
     <div class="hero">
-        <h1>The internet's coolest products,<br>tracked in real-time.</h1>
-        <p>Your daily radar for viral gadgets, home aesthetic upgrades, and trending beauty finds.</p>
+        <h1>Trending gadgets Finds</h1>
+        <p>Curated list of top-rated items tagged under gadgets this week.</p>
         
         <div class="filters">
-            <a href="/" class="pill active">🔥 All Finds</a>
-            <a href="/gadgets/" class="pill">⚙️ Gadgets</a>
-            <a href="/travel/" class="pill">✈️ Travel</a>
-            <a href="/home/" class="pill">🏠 Home</a>
+            <a href="/" class="pill">🔥 All Finds</a>
+            <a href="/gadgets/" class="pill active">⚙️ Gadgets</a>
+            <a href="/travel/" class="pill ">✈️ Travel</a>
+            <a href="/home/" class="pill ">🏠 Home</a>
         </div>
     </div>
 
     <main class="feed-container">
         <div class="grid">
             
+            
+                
                 
                 <div class="product-card">
                     <div class="image-wrapper">
@@ -73,21 +76,8 @@
                     </div>
                 </div>
                 
-                <div class="product-card">
-                    <div class="image-wrapper">
-                        <span class="badge">dsb</span>
-                        <img src="dsfb" alt="dvsd">
-                    </div>
-                    <div class="card-content">
-                        <h3>dvsd</h3>
-                        <p>dsfb</p>
-                        <div class="card-footer">
-                            <span class="price">ds</span>
-                            <a href="dsv" class="btn-action">Check Deal</a>
-                        </div>
-                    </div>
-                </div>
-                
+            
+
             
         </div>
     </main>

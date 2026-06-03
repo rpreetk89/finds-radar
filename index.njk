@@ -16,7 +16,7 @@ permalink: /
         }
         body { font-family: -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; }
         header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.25rem; font-weight: 800; }
+        .logo { font-size: 1.25rem; font-weight: 800; text-decoration: none; color: inherit; }
         .hero { max-width: 800px; margin: 60px auto 40px auto; text-align: center; padding: 0 20px; }
         .hero h1 { font-size: 3rem; font-weight: 900; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 16px; }
         .hero p { color: var(--text-muted); font-size: 1.25rem; }
@@ -77,7 +77,7 @@ permalink: /
                 </div>
                 {% endfor %}
             {% else %}
-                <p>No products found. Check your _data/products.json file setup.</p>
+                <p>No products found. Please configure items in your CMS admin workspace.</p>
             {% endif %}
         </div>
     </main>
