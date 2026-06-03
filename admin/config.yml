@@ -1,7 +1,9 @@
 backend:
-  name: github
-  repo: rpreetk89/finds-radar
-  branch: main
+name: github
+repo: rpreetk89/finds-radar # 👈 Make sure this is your real github user/repo
+branch: main
+base_url: https://still-mouse-cffe.rpreetk-89.workers.dev
+auth_endpoint: auth
 
 media_folder: "images"
 public_folder: "/images"
