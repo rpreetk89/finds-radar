@@ -9,20 +9,21 @@ media_folder: "images"
 public_folder: "/images"
 
 collections:
-  - name: "data"
-    label: "Inventory Data"
-    delete: false
-    editor:
-      preview: false
+  - name: "products"
+    label: "Products"
+    folder: "_data" # Points directly to the directory
+    extension: "json"
+    format: "json"
+    create: false # Keeps editing tied strictly to your single data file
     files:
       - file: "_data/products.json"
-        label: "Product Inventory"
-        name: "products"
-        file_kind: "json"
+        label: "Product Inventory List"
+        name: "products_list"
         fields:
-          - label: "Product Grid List"
+          - label: "All Products"
             name: "products"
             widget: "list"
+            allow_add: true
             fields:
               - { label: "Product Title", name: "title", widget: "string" }
               - { label: "Price", name: "price", widget: "string" }
