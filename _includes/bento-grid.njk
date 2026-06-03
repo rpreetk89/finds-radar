@@ -1,0 +1,28 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  {% for item in products.products %}
+    <div class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm transition-all hover:shadow-md group">
+      <!-- Media Container with Lightbox Trigger -->
+      <div class="relative aspect-square overflow-hidden rounded-2xl bg-slate-100">
+        <img src="{{ item.media[0].url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+        
+        {% if item.media.length > 1 %}
+        <button onclick="openLightbox({{ item.media | dump | escape }})" 
+                class="absolute top-3 right-3 bg-black/50 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-medium hover:bg-black transition-colors">
+          +{{ item.media.length - 1 }} More
+        </button>
+        {% endif %}
+      </div>
+
+      <!-- Content -->
+      <div class="mt-4">
+        <h3 class="font-bold text-slate-900 text-lg line-clamp-2 leading-tight">{{ item.name }}</h3>
+        <div class="flex items-center justify-between mt-4">
+          <span class="text-xl font-black text-slate-900">{{ item.price }}</span>
+          <a href="{{ item.affiliate_link }}" target="_blank" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-600 transition-colors">
+            View Deal
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
