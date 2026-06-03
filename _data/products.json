@@ -1,26 +1,12 @@
-[
-  {
-    "title": "Ultra-Slim Magnetic Power Bank",
-    "categories": ["gadgets", "travel"],
-    "image": "https://images.unsplash.com/photo-1609592424083-057d23f7be9e?auto=format&fit=crop&w=600&q=80",
-    "price": "$39.99",
-    "url": "https://amazon.com",
-    "description": "The thinnest snap-on battery pack we've tested this year. Completely flushes against your phone."
-  },
-  {
-    "title": "ANC Noise-Canceling Headset",
-    "categories": ["gadgets", "travel", "fitness"],
-    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
-    "price": "$149.00",
-    "url": "https://amazon.com",
-    "description": "Premium audio with adaptive hybrid noise-canceling. Perfect for long flights or intense gym sessions."
-  },
-  {
-    "title": "Smart Ambient Sunset Lamp",
-    "categories": ["home", "beauty"],
-    "image": "https://images.unsplash.com/photo-1507646227500-4d389b0012be?auto=format&fit=crop&w=600&q=80",
-    "price": "$24.50",
-    "url": "https://amazon.com",
-    "description": "Cast studio-grade warm sunset lighting across any room. App-controlled with customizable colors."
-  }
-]
+{
+  "products": [
+    {
+      "title": "Automation Test Object",
+      "price": "$0.00",
+      "url": "https://findsradar.com",
+      "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop",
+      "description": "If you see this card, your dashboard map structure matches perfectly.",
+      "categories": ["gadgets"]
+    }
+  ]
+}
