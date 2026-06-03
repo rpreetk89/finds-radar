@@ -1,0 +1,24 @@
+{
+  "name": "findsradar",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000f\u0000i\u0000n\u0000d\u0000s\u0000-\u0000r\u0000a\u0000d\u0000a\u0000r\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpreetk89/finds-radar.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rpreetk89/finds-radar/issues"
+  },
+  "homepage": "https://github.com/rpreetk89/finds-radar#readme",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.6"
+  }
+}
