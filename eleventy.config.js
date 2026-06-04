@@ -1,5 +1,10 @@
 module.exports = function(eleventyConfig) {
-  // Ensure the admin dashboard copies over
+  // Add a jsonify filter for Nunjucks templates
+  eleventyConfig.addFilter("jsonify", function(value) {
+    return JSON.stringify(value);
+  });
+  
+   // Ensure the admin dashboard copies over
   eleventyConfig.addPassthroughCopy("admin");
 
   // Build unique categories cleanly from your array data
