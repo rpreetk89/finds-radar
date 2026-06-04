@@ -6,7 +6,22 @@
       "affiliate_link": "https://www.amazon.com/Lifelines-Flameless-Candle-Essential-Oil-Aromatherapy-Diffuser/dp/B0GW1MZ8G6?th=1",
       "category": "home",
       "media": [
-        { "type": "image", "url": "https://m.media-amazon.com/images/I/81QcCBkZlKL._AC_SL1500_.jpg" }
+        {
+          "type": "image",
+          "url": "https://m.media-amazon.com/images/I/81QcCBkZlKL._AC_SL1500_.jpg"
+        }
+      ]
+    },
+    {
+      "name": "Rug Pads Grippers - Vaccum Tech",
+      "affiliate_link": "https://www.amazon.com/dp/B07GPJ9PW2?th=1",
+      "price": "$13.86",
+      "category": "home",
+      "media": [
+        {
+          "type": "image",
+          "url": "https://m.media-amazon.com/images/I/71IFAKP2JpL._AC_SL1000_.jpg"
+        }
       ]
     }
   ]
