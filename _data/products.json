@@ -2,6 +2,7 @@
   "products": [
     {
       "name": "Lifelines Flameless Candle Diffuser",
+      "description": "A waterless, cordless, rechargeable essential oil diffuser that mimics a real candle flame.",
       "price": "$59.99",
       "affiliate_link": "https://www.amazon.com/Lifelines-Flameless-Candle-Essential-Oil-Aromatherapy-Diffuser/dp/B0GW1MZ8G6?th=1",
       "category": "home",
@@ -14,6 +15,7 @@
     },
     {
       "name": "Rug Pads Grippers - Vaccum Tech",
+      "description": "Keep Your Rug in Place & Make Corner Flat and Easily Peel Off.",
       "affiliate_link": "https://www.amazon.com/dp/B07GPJ9PW2?th=1",
       "price": "$13.86",
       "category": "home",
@@ -25,6 +27,8 @@
       ]
     },
     {
+      "name": "Extendable Flexible Duster",
+      "description": "A versatile cleaning tool for reaching tight spaces.",
       "price": "$22.15",
       "affiliate_link": "https://m.media-amazon.com/images/I/71nsyo+DKvL._AC_SL1500_.jpg",
       "media": [
