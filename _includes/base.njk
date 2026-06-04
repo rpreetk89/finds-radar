@@ -4,10 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
 </head>
-<body class="bg-slate-50 text-slate-900">
-    
+<body class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300">
+   
+    {% include "header.njk" %}
+
     {{ content | safe }}
 
     <div id="lightbox" class="fixed inset-0 z-[100] hidden bg-black/80 flex items-center justify-center p-4">
@@ -25,5 +34,33 @@
   window.__FINDSRADAR_PRODUCTS = {{ products.products | jsonify | safe }};
 </script>
 <script src="/assets/js/lightbox.js" defer></script>
+<script>
+  const toggleBtn = document.getElementById('theme-toggle');
+  const lightIcon = document.getElementById('theme-toggle-light-icon');
+  const darkIcon = document.getElementById('theme-toggle-dark-icon');
+
+  // Check initial preference
+  if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+    lightIcon.classList.remove('hidden');
+    darkIcon.classList.add('hidden');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+
+  // Toggle function
+  toggleBtn.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    if (document.documentElement.classList.contains('dark')) {
+      localStorage.setItem('theme', 'dark');
+      lightIcon.classList.remove('hidden');
+      darkIcon.classList.add('hidden');
+    } else {
+      localStorage.setItem('theme', 'light');
+      lightIcon.classList.add('hidden');
+      darkIcon.classList.remove('hidden');
+    }
+  });
+</script>
 </body>
 </html>
