@@ -22,7 +22,7 @@
 
 {# Inject product data for the lightbox and load the external script #}
 <script>
-  window.__FINDSRADAR_PRODUCTS = {{ products.products | jsonify }};
+  window.__FINDSRADAR_PRODUCTS = {{ products.products | jsonify | safe }};
 </script>
 <script src="/assets/js/lightbox.js" defer></script>
 </body>
