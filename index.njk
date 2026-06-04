@@ -1,16 +1,32 @@
-{% for item in products.products %}
-  <div class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
-    <div class="cursor-pointer aspect-square overflow-hidden rounded-2xl bg-slate-100" 
-         onclick="openLightbox({{ item | dump | escape }})">
-      <img src="{{ item.media[0].url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
-    </div>
+---
+layout: base.njk
+title: FindsRadar
+---
 
-    <h3 class="mt-4 font-bold text-slate-900 text-lg">{{ item.name }}</h3>
-    <p class="text-xl font-black mt-2">{{ item.price }}</p>
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8">The Latest Finds</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     
-    <button onclick="openLightbox({{ item | dump | escape }})" 
-            class="w-full mt-4 bg-slate-900 text-white py-2 rounded-xl font-bold hover:bg-slate-800">
-      Know More
-    </button>
+    {% for item in products.products %}
+    <div class="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm w-full max-w-sm mx-auto">
+      
+      <div class="cursor-pointer aspect-square overflow-hidden rounded-2xl bg-slate-100 mb-4" 
+           onclick="triggerModal(this)"
+           data-product='{{ item | dump | safe }}'>
+        <img src="{{ item.media[0].url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+      </div>
+
+      <h3 class="font-bold text-slate-900 text-lg">{{ item.name }}</h3>
+      <p class="text-xl font-black mt-2">{{ item.price }}</p>
+      
+      <button onclick="triggerModal(this)" 
+              data-product='{{ item | dump | safe }}'
+              class="w-full mt-4 bg-slate-900 text-white py-2 rounded-xl font-bold hover:bg-slate-800 transition-colors">
+        Know More
+      </button>
+    </div>
+  {% endfor %}
+
   </div>
-{% endfor %}
+</div>
