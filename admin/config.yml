@@ -22,9 +22,12 @@ collections:
             fields:
               - { label: "Name", name: "name", widget: "string" }
               - { label: "Price", name: "price", widget: "string" }
+              # ADD THIS LINE:
+              - { label: "Description", name: "description", widget: "text" }
+              # ---------------------------
               - { label: "Affiliate Link", name: "affiliate_link", widget: "string" }
               - { label: "Category", name: "category", widget: "string" }
               - { label: "Media Gallery", name: "media", widget: "list", fields: [
                   { label: "Type", name: "type", widget: "select", options: ["image", "video"] },
                   { label: "URL", name: "url", widget: "string" }
-                ]}
+              ]}
