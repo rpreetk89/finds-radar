@@ -1,21 +1,16 @@
-<!-- Lightbox Overlay -->
-<div id="lightbox" class="fixed inset-0 z-[100] hidden bg-black/90 flex items-center justify-center p-4">
-  <button onclick="document.getElementById('lightbox').classList.add('hidden')" class="absolute top-5 right-5 text-white text-4xl">&times;</button>
-  <div id="lightbox-content" class="max-w-4xl w-full">
-    <!-- Media injects here -->
-  </div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <!-- We are using Tailwind CSS via CDN for your project -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    
+    <!-- This is where your index.njk content will be injected -->
+    {{ content | safe }}
 
-<script>
-function openLightbox(mediaList) {
-  const container = document.getElementById('lightbox-content');
-  const lightbox = document.getElementById('lightbox');
-  
-  // Set the image/video source
-  container.innerHTML = mediaList[0].type === 'video' 
-    ? `<video src="${mediaList[0].url}" controls class="w-full rounded-2xl"></video>`
-    : `<img src="${mediaList[0].url}" class="w-full rounded-2xl">`;
-  
-  lightbox.classList.remove('hidden');
-}
-</script>
+</body>
+</html>
