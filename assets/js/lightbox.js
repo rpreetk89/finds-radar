@@ -30,8 +30,8 @@
 
     document.getElementById('lightbox').classList.remove('hidden');
     // focus management
-    const closeBtn = document.querySelector('#lightbox button[aria-label="Close modal"]') || document.querySelector('#lightbox button');
-    if (closeBtn) closeBtn.focus();
+    const closeBtn = document.querySelector('#lightbox button[aria-label=\"Close modal\"]') || document.querySelector('#lightbox button');
+        if (closeBtn) closeBtn.focus();
   }
 
   function closeModal() {
