@@ -19,15 +19,33 @@ collections:
           - label: "Products"
             name: "products"
             widget: "list"
+            summary: "{{name}} — {{price}}"
             fields:
-              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Name", name: "name", widget: "string", required: true }
               - { label: "Price", name: "price", widget: "string" }
-              # ADD THIS LINE:
               - { label: "Description", name: "description", widget: "text" }
-              # ---------------------------
-              - { label: "Affiliate Link", name: "affiliate_link", widget: "string" }
-              - { label: "Category", name: "category", widget: "string" }
-              - { label: "Media Gallery", name: "media", widget: "list", fields: [
-                  { label: "Type", name: "type", widget: "select", options: ["image", "video"] },
-                  { label: "URL", name: "url", widget: "string" }
-              ]}
+              - { label: "USP (one line)", name: "usp", widget: "string", hint: "One short selling line (max ~80 chars)" }
+              - label: "Categories"
+                name: "categories"
+                widget: "list"
+                required: true
+                hint: "Pick one or more categories"
+                field:
+                  { label: "Category", name: "category", widget: "string" }
+              - label: "Affiliate Link"
+                name: "affiliate_link"
+                widget: "string"
+                required: true
+                hint: "Full URL to the marketplace listing (https://...)"
+              - label: "Media Gallery"
+                name: "media"
+                widget: "list"
+                required: true
+                min: 1
+                fields:
+                  - { label: "Type", name: "type", widget: "select", options: ["image", "video"], required: true }
+                  - { label: "URL", name: "url", widget: "string", required: true, hint: "Full URL to image or video" }
+              - { label: "Novelty Score", name: "novelty_score", widget: "number", required: false }
+              - { label: "Published", name: "published", widget: "boolean", default: false }
+              - { label: "Publish Date", name: "publish_date", widget: "datetime", required: false }
+              - { label: "Editor Notes", name: "editor_notes", widget: "text", required: false }

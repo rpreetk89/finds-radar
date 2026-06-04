@@ -20,28 +20,40 @@
       </div>
     </div>
 
-    <script>
-      const allProducts = {{ products.products | dump | safe }};
+<script>
+  // Ensure products exist
+  const allProducts = {{ products.products | dump | safe }};
 
-      function openModal(index) {
-        const product = allProducts[index];
-        document.getElementById('modal-title').innerText = product.name;
-        document.getElementById('modal-desc').innerText = product.description || "No description provided.";
-        document.getElementById('modal-link').href = product.affiliate_link;
-        
-        const media = product.media[0];
-        const container = document.getElementById('modal-media');
-        
-        container.innerHTML = media.type === 'video' 
-          ? `<video src="${media.url}" controls class="w-full h-full object-cover"></video>`
-          : `<img src="${media.url}" class="w-full h-full object-cover">`;
-          
-        document.getElementById('lightbox').classList.remove('hidden');
-      }
+  function openModal(index) {
+    const product = allProducts[index];
+    if (!product) return;
+    document.getElementById('modal-title').innerText = product.name || "Product";
+    document.getElementById('modal-desc').innerText = product.description || product.usp || "No description provided.";
+    document.getElementById('modal-link').href = product.affiliate_link || "#";
+    document.getElementById('modal-link').innerText = product.affiliate_link ? `Buy on marketplace` : `No link`;
 
-      function closeModal() {
-        document.getElementById('lightbox').classList.add('hidden');
+    const media = (product.media && product.media[0]) ? product.media[0] : null;
+    const container = document.getElementById('modal-media');
+    container.innerHTML = "";
+
+    if (media) {
+      if (media.type === 'video') {
+        container.innerHTML = `<video src="${media.url}" controls class="w-full h-full object-cover"></video>`;
+      } else {
+        container.innerHTML = `<img src="${media.url}" class="w-full h-full object-cover" alt="${product.name || 'Product image'}">`;
       }
-    </script>
+    } else {
+      container.innerHTML = `<div class="w-full h-full flex items-center justify-center text-slate-400">No media</div>`;
+    }
+      
+    document.getElementById('lightbox').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('lightbox').classList.add('hidden');
+    const container = document.getElementById('modal-media');
+    container.innerHTML = "";
+  }
+</script>
 </body>
 </html>
