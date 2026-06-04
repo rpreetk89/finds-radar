@@ -10,14 +10,21 @@ public_folder: "/images"
 
 collections:
   - name: "products"
-    label: "Products"
-    folder: "_data/products" # (or wherever your products are saved)
-    create: true
-    fields:
-      - { label: "Name", name: "name", widget: "string" }
-      - { label: "Price", name: "price", widget: "string" }
-      # ADD THIS SECTION BELOW:
-      - { label: "Description", name: "description", widget: "text" }
-      # ------------------------
-      - { label: "Affiliate Link", name: "affiliate_link", widget: "string" }
-      - { label: "Category", name: "category", widget: "string" }
+    label: "Product Inventory"
+    files:
+      - file: "_data/products.json"
+        label: "Product Inventory List"
+        name: "products_file"
+        fields:
+          - label: "Products"
+            name: "products"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+              - { label: "Price", name: "price", widget: "string" }
+              - { label: "Affiliate Link", name: "affiliate_link", widget: "string" }
+              - { label: "Category", name: "category", widget: "string" }
+              - { label: "Media Gallery", name: "media", widget: "list", fields: [
+                  { label: "Type", name: "type", widget: "select", options: ["image", "video"] },
+                  { label: "URL", name: "url", widget: "string" }
+                ]}
