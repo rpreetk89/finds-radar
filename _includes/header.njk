@@ -11,7 +11,14 @@
         <input type="text" placeholder="Search curated finds..." 
                class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-2 px-4 focus:ring-2 focus:ring-orange-500 text-sm">
       </div>
-
+      <div class="site-logo">
+        {# Check if user preference is dark or light, or default to light #}
+        {% if theme == 'dark' %}
+          {% include "logo-dark.njk" %}
+        {% else %}
+          {% include "logo-light.njk" %}
+        {% endif %}
+      </div>
       <div class="flex items-center gap-4">
         {% include "theme-toggle.njk" %}
       </div>
