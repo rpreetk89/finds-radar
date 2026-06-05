@@ -7,6 +7,9 @@
   // Ensure the admin dashboard copies over
   eleventyConfig.addPassthroughCopy("admin");
 
+    // Ensure the images folder with logos copies over
+  eleventyConfig.addPassthroughCopy("images");
+
   // Ensure static assets are copied to _site
   eleventyConfig.addPassthroughCopy("assets");
 

@@ -7,6 +7,9 @@ module.exports = function(eleventyConfig) {
    // Ensure the admin dashboard copies over
   eleventyConfig.addPassthroughCopy("admin");
 
+  // Ensure the images folder with logos copies over
+  eleventyConfig.addPassthroughCopy("images");
+
   // Build unique categories cleanly from your array data
   eleventyConfig.addCollection("customCategories", function(collectionApi) {
     let productsData;
