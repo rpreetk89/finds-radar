@@ -1,5 +1,8 @@
 /* Copy all the animation and layout CSS from your original file here */
-.icon-svg { flex-shrink: 0; overflow: visible; }
+.icon-svg { 
+    max-width: 100%; 
+    height: auto;
+}
 .radar-ring { fill: none; stroke: #FF6B35; stroke-linecap: round; opacity: 0; }
 .r1 { stroke-width: 3;   animation: radarPulse 2.4s ease-out infinite; animation-delay: 0s; }
 .r2 { stroke-width: 2.5; animation: radarPulse 2.4s ease-out infinite; animation-delay: 0.3s; }
