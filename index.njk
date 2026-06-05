@@ -3,27 +3,20 @@ layout: base.njk
 title: FindsRadar
 ---
 <!-- Hero Section -->
-<section class="max-w-7xl mx-auto px-4 py-16 md:py-24">
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-    
-    <!-- Left Column: Logo -->
-    <div class="flex justify-center lg:justify-start">
-      {% include "hero-logo.njk" %}
-    </div>
-
-    <!-- Right Column: Content -->
-    <div class="text-center lg:text-left">
-      <!-- Replaced previous text with requested string -->
-      <h1 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-8">
-        Hot finds, handpicked.
-      </h1>
-      
-      <button class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-semibold transition-all">
-        Browse Featured
-      </button>
-    </div>
-
+<section class="max-w-7xl mx-auto px-4 py-16 md:py-24 flex flex-col items-center text-center">
+  
+  <div class="mb-10">
+    {% include "hero-logo.njk" %}
   </div>
+
+  <h1 class="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white mb-8">
+    Hot finds, handpicked.
+  </h1>
+
+  <button class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all">
+    Browse Featured
+  </button>
+
 </section>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
