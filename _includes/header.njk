@@ -2,15 +2,9 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
       
-      <a href="/" class="flex items-center h-10 w-auto">
-        {# Logic to choose the animated SVG based on theme #}
-        <div class="h-10 w-auto transition-opacity">
-          {% if theme == 'dark' %}
-            {% include "logo-dark.njk" %}
-          {% else %}
-            {% include "logo-light.njk" %}
-          {% endif %}
-        </div>
+      <a href="/" class="flex items-center text-2xl font-bold tracking-tight">
+        <span class="text-slate-900 dark:text-white">Finds</span>
+        <span class="text-orange-500">Radar</span>
       </a>
 
       <div class="hidden md:flex flex-1 mx-8">
