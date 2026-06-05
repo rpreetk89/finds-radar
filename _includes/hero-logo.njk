@@ -1,10 +1,17 @@
-<div class="w-full flex justify-center items-center py-12">
+<!-- Container for Icon + Text -->
+<div class="flex items-center gap-6">
   
-  <div class="block dark:hidden">
-    {% include "svg/animated-light.njk" %}
-  </div>
+  <!-- Animated Icon (Swaps based on dark mode) -->
+  <div class="block dark:hidden">{% include "svg/animated-light.njk" %}</div>
+  <div class="hidden dark:block">{% include "svg/animated-dark.njk" %}</div>
 
-  <div class="hidden dark:block">
-    {% include "svg/animated-dark.njk" %}
+  <!-- Text Wordmark -->
+  <div class="flex flex-col">
+    <div class="text-5xl font-bold tracking-tight">
+      <span class="text-slate-900 dark:text-white">Finds</span><span class="text-orange-500">Radar</span>
+    </div>
+    <div class="text-slate-400 tracking-[0.3em] uppercase text-sm mt-1">
+      Discover · Shop · Explore
+    </div>
   </div>
 </div>
