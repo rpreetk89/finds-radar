@@ -28,8 +28,6 @@ collections:
                 name: "categories"
                 widget: "list"
                 required: true
-                field:
-                  { label: "Category", name: "category", widget: "string" }
               - label: "Affiliate Link"
                 name: "affiliate_link"
                 widget: "string"

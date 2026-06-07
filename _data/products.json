@@ -5,7 +5,9 @@
       "description": "A waterless, cordless, rechargeable essential oil diffuser that mimics a real candle flame.",
       "price": "$59.99",
       "affiliate_link": "https://www.amazon.com/Lifelines-Flameless-Candle-Essential-Oil-Aromatherapy-Diffuser/dp/B0GW1MZ8G6?th=1",
-      "category": "home",
+      "categories": [
+        "Home","Health","Amazon Finds"
+      ],
       "media": [
         {
           "url": "https://m.media-amazon.com/images/I/81QcCBkZlKL._AC_SL1500_.jpg"
@@ -17,7 +19,9 @@
       "description": "Keep Your Rug in Place & Make Corner Flat and Easily Peel Off.",
       "affiliate_link": "https://www.amazon.com/dp/B07GPJ9PW2?th=1",
       "price": "$13.86",
-      "category": "home",
+      "categories": [
+        "Home"
+      ],
       "media": [
         {
           "url": "https://m.media-amazon.com/images/I/71IFAKP2JpL._AC_SL1000_.jpg"
@@ -36,7 +40,9 @@
           "url": "https://m.media-amazon.com/images/I/71nsyo+DKvL._AC_SL15001_.jpg"
         }
       ],
-      "category": "home",
+      "categories": [
+        "Home", "Amazon Finds"
+      ],
       "name": "Extendable Flexible Duster"
     },
     {
@@ -45,7 +51,7 @@
       "price": "25.97$",
       "description": "3D Sleep Mask Bluetooth Wireless Music Eye Mask",
       "categories": [
-        "health"
+        "Health", "Amazon Finds"
       ],
       "affiliate_link": "https://www.amazon.com/Headphones-Bluetooth-LC-dolida-Ultra-Thin-Meditation/dp/B07T6FNLQV",
       "media": [
