@@ -8,7 +8,6 @@
       "category": "home",
       "media": [
         {
-          "type": "image",
           "url": "https://m.media-amazon.com/images/I/81QcCBkZlKL._AC_SL1500_.jpg"
         }
       ]
@@ -21,7 +20,6 @@
       "category": "home",
       "media": [
         {
-          "type": "image",
           "url": "https://m.media-amazon.com/images/I/71IFAKP2JpL._AC_SL1000_.jpg"
         }
       ]
@@ -32,12 +30,10 @@
       "affiliate_link": "https://www.amazon.com/dp/B0CWSDT82B?th=1",
       "media": [
         {
-          "type": "image",
           "url": "https://m.media-amazon.com/images/I/71nsyo+DKvL._AC_SL1500_.jpg"
         },
         {
-          "type": "video",
-          "url": "https://www.amazon.com/vdp/0a97c738328f49348f9aa63177213184?aci=amzn1.ive.vendor.video.0a97c738328f49348f9aa63177213184&product=B0CWSDT82B&ref=cm_sw_cp_r_ib_dt_Ot2bTzFYQ1jz7"
+          "url": "https://m.media-amazon.com/images/I/71nsyo+DKvL._AC_SL15001_.jpg"
         }
       ],
       "category": "home",

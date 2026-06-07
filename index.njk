@@ -20,8 +20,12 @@ title: FindsRadar
 </section>
 
 <div class="max-w-7xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-8">The Latest Finds</h1>
+  <h1 class="text-3xl font-bold mb-8">Categories</h1>
 
-  {% include "_includes/bento-grid.njk" %}
-
+  <div class="grid md:grid-cols-2 gap-8">
+    {% for cat in collections.customCategories %}
+      {% set catName = cat %}
+      {% include "category-card.njk" %}
+    {% endfor %}
+  </div>
 </div>

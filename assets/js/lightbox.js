@@ -1,46 +1,60 @@
 ﻿// assets/js/lightbox.js
 (() => {
-  const allProducts = window.__FINDSRADAR_PRODUCTS || [];
+  let currentProduct = null;
+  let currentMediaIndex = 0;
 
-  function openModal(index) {
-    const product = allProducts[index];
-    if (!product) return;
-    const title = document.getElementById('modal-title');
-    const desc = document.getElementById('modal-desc');
-    const link = document.getElementById('modal-link');
+  function renderMedia() {
     const container = document.getElementById('modal-media');
+    const prevBtn = document.getElementById('prev-media');
+    const nextBtn = document.getElementById('next-media');
+    
+    // Safety check
+    if (!currentProduct || !currentProduct.media || currentProduct.media.length === 0) return;
 
-    title.innerText = product.name || "Product";
-    desc.innerText = product.description || product.usp || "No description provided.";
-    link.href = product.affiliate_link || "#";
-    link.innerText = product.affiliate_link ? `Buy on marketplace` : `No link`;
-    link.setAttribute('rel', 'noopener noreferrer');
+    const media = currentProduct.media[currentMediaIndex];
+    
+    // Clear and render media (Images Only)
+    container.innerHTML = `<img src="${media.url}" class="w-full h-full object-contain" alt="${currentProduct.name}">`;
 
-    container.innerHTML = "";
-    const media = (product.media && product.media[0]) ? product.media[0] : null;
-    if (media) {
-      if (media.type === 'video') {
-        container.innerHTML = `<video src="${media.url}" controls class="w-full h-full object-cover"></video>`;
-      } else {
-        container.innerHTML = `<img src="${media.url}" class="w-full h-full object-cover" alt="${product.name || 'Product image'}">`;
-      }
-    } else {
-      container.innerHTML = `<div class="w-full h-full flex items-center justify-center text-slate-400">No media</div>`;
-    }
+    // Handle button visibility logic
+    if (prevBtn) prevBtn.style.display = currentMediaIndex > 0 ? 'flex' : 'none';
+    if (nextBtn) nextBtn.style.display = currentMediaIndex < currentProduct.media.length - 1 ? 'flex' : 'none';
+  }
+
+  function openModal(item) {
+    currentProduct = item; 
+    currentMediaIndex = 0;
+
+    document.getElementById('modal-title').innerText = currentProduct.name;
+    document.getElementById('modal-desc').innerText = currentProduct.description || "";
+    
+    const link = document.getElementById('modal-link');
+    link.href = currentProduct.affiliate_link || "#";
 
     document.getElementById('lightbox').classList.remove('hidden');
-    // focus management
-    const closeBtn = document.querySelector('#lightbox button[aria-label=\"Close modal\"]') || document.querySelector('#lightbox button');
-        if (closeBtn) closeBtn.focus();
+    
+    if (currentProduct.media && currentProduct.media.length > 0) {
+      renderMedia();
+    }
   }
 
   function closeModal() {
     document.getElementById('lightbox').classList.add('hidden');
-    const container = document.getElementById('modal-media');
-    container.innerHTML = "";
+    document.getElementById('modal-media').innerHTML = ""; 
+    currentProduct = null;
   }
 
-  // keyboard: Esc to close
+  // Navigation Logic
+  window.changeMedia = (direction) => {
+    if (!currentProduct) return;
+    currentMediaIndex += direction;
+    // Boundary checks
+    if (currentMediaIndex < 0) currentMediaIndex = 0;
+    if (currentMediaIndex >= currentProduct.media.length) currentMediaIndex = currentProduct.media.length - 1;
+    renderMedia();
+  };
+
+  // Keyboard: Esc to close
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const lb = document.getElementById('lightbox');
@@ -48,14 +62,7 @@
     }
   });
 
-  // expose minimal API for templates to call
-  window.FindsRadarLightbox = {
-    openModal,
-    closeModal,
-    setProducts: (products) => { window.__FINDSRADAR_PRODUCTS = products; }
-  };
-
-  // attach global handlers for any existing inline onclicks that call openModal/closeModal
-  window.openModal = (i) => window.FindsRadarLightbox.openModal(i);
-  window.closeModal = () => window.FindsRadarLightbox.closeModal();
+  // Expose API
+  window.openModal = openModal;
+  window.closeModal = closeModal;
 })();

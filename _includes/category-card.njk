@@ -1,0 +1,13 @@
+{# _includes/category-card.njk #}
+<div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
+  <h2 class="text-xl font-bold text-slate-800 capitalize mb-4">{{ catName }}</h2>
+  
+  <div class="grid grid-cols-2 gap-4">
+    {% for product in products.products %}
+      {% if product.category == catName %}
+        {# This now pulls the image-only design from your product-card.njk #}
+        {% include "product-card.njk" %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
