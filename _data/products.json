@@ -11,7 +11,8 @@
           "type": "image",
           "url": "https://m.media-amazon.com/images/I/81QcCBkZlKL._AC_SL1500_.jpg"
         }
-      ]
+      ],
+      "published": true
     },
     {
       "name": "Rug Pads Grippers - Vaccum Tech",
@@ -24,7 +25,8 @@
           "type": "image",
           "url": "https://m.media-amazon.com/images/I/71IFAKP2JpL._AC_SL1000_.jpg"
         }
-      ]
+      ],
+      "published": true
     },
     {
       "price": "$22.15",
@@ -41,7 +43,9 @@
         }
       ],
       "category": "home",
-      "name": "Extendable Flexible Duster"
+      "name": "Extendable Flexible Duster",
+      "publish_date": "2026-06-07T17:39:00.000-04:00",
+      "published": true
     }
   ]
 }
