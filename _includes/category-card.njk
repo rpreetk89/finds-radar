@@ -4,10 +4,19 @@
   
   <div class="grid grid-cols-2 gap-4">
     {% for product in products.products %}
-      {% if product.category == catName %}
-        {# This now pulls the image-only design from your product-card.njk #}
-        {% include "product-card.njk" %}
-      {% endif %}
+    {# 1. Check if the product matches by looping through its categories #}
+  {% set isMatch = false %}
+  {% for category in product.categories %}
+    {# Compare the lowercase versions of both strings #}
+    {% if category | lower == catName | lower %}
+      {% set isMatch = true %}
+    {% endif %}
+  {% endfor %}
+
+  {# 2. If it is a match, include the card #}
+  {% if isMatch %}
+    {% include "product-card.njk" %}
+  {% endif %}
     {% endfor %}
   </div>
 </div>
