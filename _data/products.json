@@ -38,6 +38,25 @@
       ],
       "category": "home",
       "name": "Extendable Flexible Duster"
+    },
+    {
+      "published": true,
+      "name": "Music Eye Mask",
+      "price": "25.97$",
+      "description": "3D Sleep Mask Bluetooth Wireless Music Eye Mask",
+      "categories": [
+        "health"
+      ],
+      "affiliate_link": "https://www.amazon.com/Headphones-Bluetooth-LC-dolida-Ultra-Thin-Meditation/dp/B07T6FNLQV",
+      "media": [
+        {
+          "url": "https://m.media-amazon.com/images/I/71318uSX+wL._AC_SL1500_.jpg"
+        },
+        {
+          "url": "https://m.media-amazon.com/images/I/71g2QK4wMYL._AC_SL1500_.jpg"
+        }
+      ],
+      "publish_date": "2026-06-07T18:38:00.000-04:00"
     }
   ]
 }
