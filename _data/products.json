@@ -48,7 +48,7 @@
       "published": true
     },
     {
-      "published": false,
+      "published": true,
       "name": "Noise Cancelling Head Phones",
       "price": "$69.97",
       "affiliate_link": "https://www.amazon.com/Cancelling-Bluetooth-Headphones-Transparency-Headphone/dp/B0GYWS3V9J",
@@ -60,6 +60,9 @@
         {
           "url": "https://m.media-amazon.com/images/I/71Qb6jaWiCL._AC_SL1500_.jpg"
         }
+      ],
+      "categories": [
+        "Tech"
       ]
     }
   ]
