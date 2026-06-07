@@ -11,7 +11,8 @@
           "type": "image",
           "url": "https://m.media-amazon.com/images/I/81QcCBkZlKL._AC_SL1500_.jpg"
         }
-      ]
+      ],
+      "published": true
     },
     {
       "name": "Rug Pads Grippers - Vaccum Tech",
@@ -24,7 +25,8 @@
           "type": "image",
           "url": "https://m.media-amazon.com/images/I/71IFAKP2JpL._AC_SL1000_.jpg"
         }
-      ]
+      ],
+      "published": true
     },
     {
       "price": "$22.15",
@@ -37,11 +39,32 @@
         },
         {
           "type": "video",
-          "url": "https://www.amazon.com/vdp/0a97c738328f49348f9aa63177213184?aci=amzn1.ive.vendor.video.0a97c738328f49348f9aa63177213184&product=B0CWSDT82B&ref=cm_sw_cp_r_ib_dt_Ot2bTzFYQ1jz7"
+          "url": "https://m.media-amazon.com/images/I/71nsyo+DKvL._AC_SL1500_.jpg"
         }
       ],
       "category": "home",
-      "name": "Extendable Flexible Duster"
+      "name": "Extendable Flexible Duster",
+      "publish_date": "2026-06-07T17:39:00.000-04:00",
+      "published": true
+    },
+    {
+      "published": true,
+      "name": "Noise Cancelling Head Phones",
+      "price": "$69.97",
+      "affiliate_link": "https://www.amazon.com/Cancelling-Bluetooth-Headphones-Transparency-Headphone/dp/B0GYWS3V9J",
+      "description": "Hybrid Active Noise Cancelling Bluetooth 6.0 Headphones",
+      "media": [
+        {
+          "url": "https://m.media-amazon.com/images/I/71+wowM5o5L._AC_SL1500_.jpg"
+        },
+        {
+          "url": "https://m.media-amazon.com/images/I/71Qb6jaWiCL._AC_SL1500_.jpg"
+        }
+      ],
+      "categories": [
+        "home"
+      ],
+      "publish_date": "2026-06-07T18:27:00.000-04:00"
     }
   ]
 }
