@@ -1,6 +1,4 @@
-{
-  "list": [
-    { "name": "Health" },
-    { "name": "Travel" }
-  ]
-}
+[
+  { "name": "Health" },
+  { "name": "Travel" }
+]

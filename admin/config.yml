@@ -51,7 +51,7 @@ collections:
                 name: "marketplace"
                 widget: "relation"
                 collection: "settings"
-                file: "marketplaces"
+                file: "_data/marketplaces.json"
                 searchFields: ["list.name"]
                 valueField: "list.name"
                 displayFields: ["list.name"]
@@ -59,7 +59,7 @@ collections:
                 name: "usage_category"
                 widget: "relation"
                 collection: "settings"
-                file: "categories"
+                file: "_data/categories.json"
                 searchFields: ["list.name"]
                 valueField: "list.name"
                 displayFields: ["list.name"]

@@ -1,6 +1,4 @@
-{
-  "list": [
-    { "name": "Amazon" },
-    { "name": "Temu" }
-  ]
-}
+[
+  { "name": "Amazon" },
+  { "name": "Temu" }
+]
