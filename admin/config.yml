@@ -52,17 +52,18 @@ collections:
                 widget: "relation"
                 collection: "settings"
                 file: "_data/marketplaces.json"
-                searchFields: ["list.*.name"]
-                valueField: "list.*.name"
-                displayFields: ["list.*.name"]
+                searchFields: ["name"]
+                valueField: "name"
+                displayFields: ["name"]
               - label: "Usage Category"
                 name: "usage_category"
                 widget: "relation"
                 collection: "settings"
                 file: "_data/categories.json"
-                searchFields: ["list.*.name"]
-                valueField: "list.*.name"
-                displayFields: ["list.*.name"]
+                searchFields: ["name"]
+                valueField: "name"
+                displayFields: ["name"]
+                multiple: true
               - label: "Media Gallery"
                 name: "media"
                 widget: "list"
