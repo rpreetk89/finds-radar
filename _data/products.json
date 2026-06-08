@@ -1,41 +1,46 @@
 {
   "products": [
     {
-      "name": "Lifelines Flameless Candle Diffuser",
-      "description": "A waterless, cordless, rechargeable essential oil diffuser that mimics a real candle flame.",
-      "price": "$59.99",
-      "affiliate_link": "https://www.amazon.com/Lifelines-Flameless-Candle-Essential-Oil-Aromatherapy-Diffuser/dp/B0GW1MZ8G6?th=1",
-      "categories": [
-        "Home",
-        "Amazon Finds"
-      ],
       "media": [
         {
           "url": "https://m.media-amazon.com/images/I/81QcCBkZlKL._AC_SL1500_.jpg"
         }
       ],
-      "published": true
-    },
-    {
-      "name": "Rug Pads Grippers - Vaccum Tech",
-      "description": "Keep Your Rug in Place & Make Corner Flat and Easily Peel Off.",
-      "affiliate_link": "https://www.amazon.com/dp/B07GPJ9PW2?th=1",
-      "price": "$13.86",
+      "price": "$59.99",
+      "marketplace": "Amazon",
+      "name": "Lifelines Flameless Candle Diffuser",
+      "affiliate_link": "https://www.amazon.com/Lifelines-Flameless-Candle-Essential-Oil-Aromatherapy-Diffuser/dp/B0GW1MZ8G6?th=1",
+      "published": true,
+      "usage_category": [
+        "Health"
+      ],
       "categories": [
         "Home",
         "Amazon Finds"
       ],
+      "description": "A waterless, cordless, rechargeable essential oil diffuser that mimics a real candle flame."
+    },
+    {
       "media": [
         {
           "url": "https://m.media-amazon.com/images/I/71IFAKP2JpL._AC_SL1000_.jpg"
         }
       ],
-      "published": true
+      "price": "$13.86",
+      "marketplace": "Amazon",
+      "name": "Rug Pads Grippers - Vaccum Tech",
+      "affiliate_link": "https://www.amazon.com/dp/B07GPJ9PW2?th=1",
+      "published": true,
+      "usage_category": [
+        "Health"
+      ],
+      "categories": [
+        "Home",
+        "Amazon Finds"
+      ],
+      "description": "Keep Your Rug in Place & Make Corner Flat and Easily Peel Off."
     },
     {
-      "price": "$22.15",
-      "description": "An extendable and flexible duster for easy cleaning.",
-      "affiliate_link": "https://www.amazon.com/dp/B0CWSDT82B?th=1",
       "media": [
         {
           "url": "https://m.media-amazon.com/images/I/71nsyo+DKvL._AC_SL1500_.jpg"
@@ -45,17 +50,20 @@
           "url": "https://m.media-amazon.com/images/I/71nsyo+DKvL._AC_SL1500_.jpg"
         }
       ],
-      "category": "home",
+      "price": "$22.15",
+      "marketplace": "Amazon",
       "name": "Extendable Flexible Duster",
+      "affiliate_link": "https://www.amazon.com/dp/B0CWSDT82B?th=1",
+      "published": true,
+      "usage_category": [
+        "Travel",
+        "Tech"
+      ],
+      "description": "An extendable and flexible duster for easy cleaning.",
       "publish_date": "2026-06-07T17:39:00.000-04:00",
-      "published": true
+      "category": "home"
     },
     {
-      "published": true,
-      "name": "Noise Cancelling Head Phones",
-      "price": "$69.97",
-      "affiliate_link": "https://www.amazon.com/Cancelling-Bluetooth-Headphones-Transparency-Headphone/dp/B0GYWS3V9J",
-      "description": "Hybrid Active Noise Cancelling Bluetooth 6.0 Headphones",
       "media": [
         {
           "url": "https://m.media-amazon.com/images/I/71+wowM5o5L._AC_SL1500_.jpg"
@@ -64,9 +72,18 @@
           "url": "https://m.media-amazon.com/images/I/71Qb6jaWiCL._AC_SL1500_.jpg"
         }
       ],
+      "price": "$69.97",
+      "marketplace": "Amazon",
+      "name": "Noise Cancelling Head Phones",
+      "affiliate_link": "https://www.amazon.com/Cancelling-Bluetooth-Headphones-Transparency-Headphone/dp/B0GYWS3V9J",
+      "published": true,
+      "usage_category": [
+        "Tech"
+      ],
       "categories": [
         "home"
       ],
+      "description": "Hybrid Active Noise Cancelling Bluetooth 6.0 Headphones",
       "publish_date": "2026-06-07T18:27:00.000-04:00"
     }
   ]
