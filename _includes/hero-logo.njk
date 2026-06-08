@@ -1,13 +1,13 @@
-<div class="flex flex-row items-center justify-center gap-4">
+<div class="!inline-flex flex-row items-center justify-center gap-4 flex-nowrap">
   
-  <div class="block dark:hidden">
-    {% include "svg/animated-light.njk" %}
+  <div class="block dark:hidden w-20 h-20 flex-shrink-0 inline-block">
+    {% include "logo-light.njk" %}
   </div>
-  <div class="hidden dark:block">
-    {% include "svg/animated-dark.njk" %}
+  <div class="hidden dark:block w-20 h-20 flex-shrink-0 inline-block">
+    {% include "logo-dark.njk" %}
   </div>
 
-  <div class="text-4xl md:text-5xl font-bold tracking-tight">
+  <div class="text-4xl md:text-5xl font-bold tracking-tight whitespace-nowrap !inline-block">
     <span class="text-slate-900 dark:text-white">Finds</span><span class="text-orange-500">Radar</span>
   </div>
 </div>

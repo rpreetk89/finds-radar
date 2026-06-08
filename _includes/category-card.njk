@@ -1,22 +1,21 @@
 {# _includes/category-card.njk #}
-<div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-  <h2 class="text-xl font-bold text-slate-800 capitalize mb-4">{{ catName }}</h2>
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+  <h2 class="text-lg font-bold text-slate-800 dark:text-white capitalize mb-4">{{ catName }}</h2>
   
-  <div class="grid grid-cols-2 gap-4">
+  {# Updated grid to be 2 columns on mobile, 3 on desktop #}
+  <div class="grid grid-cols-3 md:grid-cols-2 gap-2">
     {% for product in products.products %}
-    {# 1. Check if the product matches by looping through its categories #}
-  {% set isMatch = false %}
-  {% for category in product.categories %}
-    {# Compare the lowercase versions of both strings #}
-    {% if category | lower == catName | lower %}
-      {% set isMatch = true %}
-    {% endif %}
-  {% endfor %}
+      {# Your logic to find matching categories #}
+      {% set isMatch = false %}
+      {% for category in product.categories %}
+        {% if category | lower == catName | lower %}
+          {% set isMatch = true %}
+        {% endif %}
+      {% endfor %}
 
-  {# 2. If it is a match, include the card #}
-  {% if isMatch %}
-    {% include "product-card.njk" %}
-  {% endif %}
+      {% if isMatch %}
+        {% include "product-card.njk" %}
+      {% endif %}
     {% endfor %}
   </div>
 </div>

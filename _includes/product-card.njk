@@ -1,6 +1,5 @@
-{# _includes/product-card.njk #}
 <div 
-  class="cursor-pointer group overflow-hidden rounded-xl border border-slate-200 aspect-square shadow-sm hover:shadow-lg transition-all duration-300"
+  class="cursor-pointer group overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 aspect-square shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-slate-800"
   onclick='openModal({{ product | jsonify | safe }})'
 >
   {% if product.media and product.media[0] %}
@@ -10,7 +9,7 @@
       class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
     >
   {% else %}
-    <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
+    <div class="w-full h-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs text-slate-400 dark:text-slate-500">
       No Image
     </div>
   {% endif %}
