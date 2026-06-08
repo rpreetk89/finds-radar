@@ -104,6 +104,28 @@
           "url": "https://m.media-amazon.com/images/I/71Ph+4SiwgL._AC_SL1500_.jpg"
         }
       ]
+    },
+    {
+      "name": "Handheld Hanging Iron",
+      "marketplace": "Temu",
+      "usage_category": [
+        "Travel",
+        "Home"
+      ],
+      "media": [
+        {
+          "url": "https://img.kwcdn.com/product/fancy/4618fa25-f37d-4810-9d0e-d44461209b7a.jpg?imageView2/2/w/800/q/70/format/avif"
+        },
+        {
+          "url": "https://img.kwcdn.com/product/fancy/9577f373-8d58-466f-a026-ffb10de1dc4a.jpg?imageView2/2/w/800/q/70/format/avif"
+        },
+        {
+          "url": "https://img.kwcdn.com/product/fancy/2db1741f-9fc6-43f8-8788-f3ec2a34cd7f.jpg?imageView2/2/w/800/q/70/format/avif"
+        }
+      ],
+      "affiliate_link": "https://www.temu.com/1100w-handheld-hanging-ironing-machine-with-20-heating--with-a-cleaning-brush-and-a-300ml-large-capacity-water-tank-home-steam-ironing-machine-is-a-must-have-tool-for-wrinkle-removal-during-travel-and--for-business-trips-g-601102968828541.html",
+      "description": "Powerful 1100W handheld steamer with 20‑second heat‑up and a large 10.14 oz water tank — includes a cleaning brush for effortless wrinkle removal at home or on the go.",
+      "price": "$22.19"
     }
   ]
 }
