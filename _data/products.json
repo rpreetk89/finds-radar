@@ -86,6 +86,24 @@
       ],
       "description": "Hybrid Active Noise Cancelling Bluetooth 6.0 Headphones",
       "publish_date": "2026-06-07T18:27:00.000-04:00"
+    },
+    {
+      "name": "Artificial Fruits Pack",
+      "price": "$10.00",
+      "description": "Realiastic Fake Fruits Table",
+      "affiliate_link": "https://www.amazon.com/Artificial-Decoration-Realiastic-Centrepieces-Simulation/dp/B0H33NF2KX",
+      "marketplace": "Amazon",
+      "usage_category": [
+        "Home"
+      ],
+      "media": [
+        {
+          "url": "https://m.media-amazon.com/images/I/71+lQYCGfRL._AC_SL1500_.jpg"
+        },
+        {
+          "url": "https://m.media-amazon.com/images/I/71Ph+4SiwgL._AC_SL1500_.jpg"
+        }
+      ]
     }
   ]
 }
