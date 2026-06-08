@@ -1,38 +1,37 @@
 ﻿module.exports = function(eleventyConfig) {
-  // Add a jsonify filter for Nunjucks templates
-  eleventyConfig.addFilter("jsonify", function(value) {
-    return JSON.stringify(value);
-  });
-
-  // Ensure the admin dashboard copies over
+  eleventyConfig.addFilter("jsonify", (value) => JSON.stringify(value));
   eleventyConfig.addPassthroughCopy("admin");
-
-    // Ensure the images folder with logos copies over
   eleventyConfig.addPassthroughCopy("images");
-
-  // Ensure static assets are copied to _site
   eleventyConfig.addPassthroughCopy("assets");
 
-  // Build unique categories cleanly from your array data
   eleventyConfig.addCollection("customCategories", function(collectionApi) {
-    let productsData;
+    let productsData = [];
     try {
-      productsData = require("./_data/products.json").products;
+      // Direct path to your data file
+      const data = require("./_data/products.json");
+      productsData = data.products || [];
+      console.log(`[DEBUG] Found ${productsData.length} products for categories.`);
     } catch(e) {
-      productsData = [];
+      console.error("[DEBUG] Error loading products.json:", e);
     }
     
     const categorySet = new Set();
-    if (Array.isArray(productsData)) {
-      productsData.forEach(product => {
-        if (Array.isArray(product.categories)) {
-          product.categories.forEach(cat => {
-            if (cat) categorySet.add(cat.toLowerCase().trim());
-          });
-        }
-      });
-    }
-    return Array.from(categorySet);
+    productsData.forEach(product => {
+      // Check singular 'category'
+      if (product.category) categorySet.add(product.category.toLowerCase().trim());
+      
+      // Check plural 'categories' (if it exists)
+      if (Array.isArray(product.categories)) {
+        product.categories.forEach(item => {
+          const cat = (typeof item === 'object' && item.category) ? item.category : item;
+          if (cat) categorySet.add(cat.toLowerCase().trim());
+        });
+      }
+    });
+    
+    const uniqueCats = Array.from(categorySet);
+    console.log("[DEBUG] Found categories:", uniqueCats);
+    return uniqueCats;
   });
 
   return {

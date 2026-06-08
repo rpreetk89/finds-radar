@@ -5,10 +5,12 @@
       "description": "A waterless, cordless, rechargeable essential oil diffuser that mimics a real candle flame.",
       "price": "$59.99",
       "affiliate_link": "https://www.amazon.com/Lifelines-Flameless-Candle-Essential-Oil-Aromatherapy-Diffuser/dp/B0GW1MZ8G6?th=1",
-      "category": "home",
+      "categories": [
+        "Home",
+        "Amazon Finds"
+      ],
       "media": [
         {
-          "type": "image",
           "url": "https://m.media-amazon.com/images/I/81QcCBkZlKL._AC_SL1500_.jpg"
         }
       ],
@@ -19,10 +21,12 @@
       "description": "Keep Your Rug in Place & Make Corner Flat and Easily Peel Off.",
       "affiliate_link": "https://www.amazon.com/dp/B07GPJ9PW2?th=1",
       "price": "$13.86",
-      "category": "home",
+      "categories": [
+        "Home",
+        "Amazon Finds"
+      ],
       "media": [
         {
-          "type": "image",
           "url": "https://m.media-amazon.com/images/I/71IFAKP2JpL._AC_SL1000_.jpg"
         }
       ],
@@ -34,7 +38,6 @@
       "affiliate_link": "https://www.amazon.com/dp/B0CWSDT82B?th=1",
       "media": [
         {
-          "type": "image",
           "url": "https://m.media-amazon.com/images/I/71nsyo+DKvL._AC_SL1500_.jpg"
         },
         {
