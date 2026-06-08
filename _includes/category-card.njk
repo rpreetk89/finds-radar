@@ -7,7 +7,7 @@
     {% for product in products.products %}
       {# Your logic to find matching categories #}
       {% set isMatch = false %}
-      {% for category in product.categories %}
+      {% for category in product.usage_category %}
         {% if category | lower == catName | lower %}
           {% set isMatch = true %}
         {% endif %}

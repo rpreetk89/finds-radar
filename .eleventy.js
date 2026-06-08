@@ -1,37 +1,67 @@
-﻿module.exports = function(eleventyConfig) {
+﻿const fs = require("fs");
+const path = require("path");
+
+module.exports = function(eleventyConfig) {
+  // 1. REGISTER FILTERS FIRST (Prevents "filter not found" errors)
   eleventyConfig.addFilter("jsonify", (value) => JSON.stringify(value));
+  
+  // Static assets
   eleventyConfig.addPassthroughCopy("admin");
   eleventyConfig.addPassthroughCopy("images");
   eleventyConfig.addPassthroughCopy("assets");
 
-  eleventyConfig.addCollection("customCategories", function(collectionApi) {
-    let productsData = [];
-    try {
-      // Direct path to your data file
-      const data = require("./_data/products.json");
-      productsData = data.products || [];
-      console.log(`[DEBUG] Found ${productsData.length} products for categories.`);
-    } catch(e) {
-      console.error("[DEBUG] Error loading products.json:", e);
-    }
+  // HELPER: Get official category names from your /categories folder files
+  const getOfficialCategories = () => {
+    const dir = "categories";
+    if (!fs.existsSync(dir)) return [];
     
-    const categorySet = new Set();
-    productsData.forEach(product => {
-      // Check singular 'category'
-      if (product.category) categorySet.add(product.category.toLowerCase().trim());
-      
-      // Check plural 'categories' (if it exists)
-      if (Array.isArray(product.categories)) {
-        product.categories.forEach(item => {
-          const cat = (typeof item === 'object' && item.category) ? item.category : item;
-          if (cat) categorySet.add(cat.toLowerCase().trim());
-        });
+    return fs.readdirSync(dir)
+      .filter(file => file.endsWith(".json"))
+      .map(file => {
+        try {
+          const content = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+          // Return the category name in lowercase for matching
+          return content.name ? content.name.toLowerCase().trim() : null;
+        } catch (e) {
+          return null;
+        }
+      })
+      .filter(name => name !== null);
+  };
+
+  // 2. Custom Categories Collection (STRICT FILTERING)
+// Replace this block in your .eleventy.js
+eleventyConfig.addCollection("customCategories", function(collectionApi) {
+  const dir = "categories";
+  if (!fs.existsSync(dir)) return [];
+  
+  // Return the list of file names directly
+  return fs.readdirSync(dir)
+    .filter(file => file.endsWith(".json"))
+    .map(file => {
+      try {
+        const content = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+        // Return the name so your templates can use it
+        return content.name.toLowerCase().trim();
+      } catch (e) {
+        console.error(`Error reading ${file}:`, e);
+        return null;
       }
-    });
+    })
+    .filter(name => name !== null);
+});
+
+  // 3. Marketplaces Collection
+  eleventyConfig.addCollection("marketplaces", function() {
+    const dir = "marketplaces";
+    if (!fs.existsSync(dir)) return [];
     
-    const uniqueCats = Array.from(categorySet);
-    console.log("[DEBUG] Found categories:", uniqueCats);
-    return uniqueCats;
+    return fs.readdirSync(dir)
+      .filter(file => file.endsWith(".json"))
+      .map(file => {
+        const content = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+        return { data: content };
+      });
   });
 
   return {

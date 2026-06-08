@@ -10,7 +10,29 @@ title: FindsRadar
     Hot finds, handpicked.
   </p>
 </section>
+
+<section class="max-w-7xl mx-auto px-4 pb-12">
+  <h2 class="text-xl font-bold mb-6">Shop by Marketplace</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    {% for mp in collections.marketplaces %}
+      {# Calculate count dynamically #}
+      {% set count = 0 %}
+      {% for item in products.products %}
+        {% if item.marketplace == mp.data.name %}
+          {% set count = count + 1 %}
+        {% endif %}
+      {% endfor %}
+
+      <a href="/marketplaces/{{ mp.data.name | slugify }}/" class="border border-slate-200 rounded-xl p-6 flex flex-col items-center hover:shadow-lg transition-shadow">
+        <span class="font-bold text-lg">{{ mp.data.name }}</span>
+        <span class="text-sm text-slate-500 mt-1">{{ count }}+ finds</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
 <div class="max-w-7xl mx-auto px-4 pb-12">
+  <h2 class="text-xl font-bold mb-6">Shop by Category</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
     {% for cat in collections.customCategories %}
       {% set catName = cat %}
