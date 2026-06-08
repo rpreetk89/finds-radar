@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-[
-  { "name": "Amazon" },
-  { "name": "Temu" }
-]
-=======
 {
   "list": [
     {
@@ -14,4 +8,3 @@
     }
   ]
 }
->>>>>>> c48884e4edf3bd0cde5d8e21824eee43deb77876
