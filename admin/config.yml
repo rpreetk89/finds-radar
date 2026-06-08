@@ -9,27 +9,22 @@ media_folder: "images"
 public_folder: "/images"
 
 collections:
-  - name: "settings"
-    label: "Settings"
-    files:
-      - file: "_data/marketplaces.json"
-        label: "Marketplaces"
-        name: "marketplaces"
-        fields:
-          - label: "Marketplaces"
-            name: "list"
-            widget: "list"
-            fields:
-              - { label: "Name", name: "name", widget: "string" }
-      - file: "_data/categories.json"
-        label: "Categories"
-        name: "categories"
-        fields:
-          - label: "Categories"
-            name: "list"
-            widget: "list"
-            fields:
-              - { label: "Name", name: "name", widget: "string" }
+  - name: "marketplaces"
+    label: "Marketplaces"
+    folder: "_data/marketplaces"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+
+  # 2. Categories Collection
+  - name: "categories"
+    label: "Categories"
+    folder: "_data/categories"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
 
   - name: "products"
     label: "Product Inventory"
@@ -47,19 +42,19 @@ collections:
               - { label: "Price", name: "price", widget: "string" }
               - { label: "Description", name: "description", widget: "text" }
               - { label: "Affiliate Link", name: "affiliate_link", widget: "string", required: true }
+              # Relates to the folder, NOT a specific file
               - label: "Marketplace"
                 name: "marketplace"
                 widget: "relation"
-                collection: "settings"
-                file: "_data/marketplaces.json"
+                collection: "marketplaces"
                 searchFields: ["name"]
                 valueField: "name"
                 displayFields: ["name"]
+              # Relates to the folder, NOT a specific file
               - label: "Usage Category"
                 name: "usage_category"
                 widget: "relation"
-                collection: "settings"
-                file: "_data/categories.json"
+                collection: "categories"
                 searchFields: ["name"]
                 valueField: "name"
                 displayFields: ["name"]
