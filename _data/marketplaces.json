@@ -1,4 +1,17 @@
+<<<<<<< HEAD
 [
   { "name": "Amazon" },
   { "name": "Temu" }
 ]
+=======
+{
+  "list": [
+    {
+      "name": "Amazon"
+    },
+    {
+      "name": "Temu"
+    }
+  ]
+}
+>>>>>>> c48884e4edf3bd0cde5d8e21824eee43deb77876
