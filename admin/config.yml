@@ -9,6 +9,28 @@ media_folder: "images"
 public_folder: "/images"
 
 collections:
+  - name: "settings"
+    label: "Settings"
+    files:
+      - file: "_data/marketplaces.json"
+        label: "Marketplaces"
+        name: "marketplaces"
+        fields:
+          - label: "Marketplaces"
+            name: "list"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+      - file: "_data/categories.json"
+        label: "Categories"
+        name: "categories"
+        fields:
+          - label: "Categories"
+            name: "list"
+            widget: "list"
+            fields:
+              - { label: "Name", name: "name", widget: "string" }
+
   - name: "products"
     label: "Product Inventory"
     files:
@@ -19,19 +41,28 @@ collections:
           - label: "Products"
             name: "products"
             widget: "list"
-            summary: "{{name}} — {{price}}"
+            summary: "{{name}}"
             fields:
               - { label: "Name", name: "name", widget: "string", required: true }
               - { label: "Price", name: "price", widget: "string" }
               - { label: "Description", name: "description", widget: "text" }
-              - label: "Categories"
-                name: "categories"
-                widget: "list"
-                required: true
-              - label: "Affiliate Link"
-                name: "affiliate_link"
-                widget: "string"
-                required: true
+              - { label: "Affiliate Link", name: "affiliate_link", widget: "string", required: true }
+              - label: "Marketplace"
+                name: "marketplace"
+                widget: "relation"
+                collection: "settings"
+                file: "marketplaces"
+                searchFields: ["list.name"]
+                valueField: "list.name"
+                displayFields: ["list.name"]
+              - label: "Usage Category"
+                name: "usage_category"
+                widget: "relation"
+                collection: "settings"
+                file: "categories"
+                searchFields: ["list.name"]
+                valueField: "list.name"
+                displayFields: ["list.name"]
               - label: "Media Gallery"
                 name: "media"
                 widget: "list"
@@ -39,7 +70,3 @@ collections:
                 min: 1
                 fields:
                   - { label: "URL", name: "url", widget: "string", required: true }
-              - { label: "Novelty Score", name: "novelty_score", widget: "number", required: false }
-              - { label: "Published", name: "published", widget: "boolean", default: false }
-              - { label: "Publish Date", name: "publish_date", widget: "datetime", required: false }
-              - { label: "Editor Notes", name: "editor_notes", widget: "text", required: false }
