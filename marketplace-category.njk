@@ -1,0 +1,28 @@
+---
+layout: base.njk
+pagination:
+  data: collections.marketplaceCategories
+  size: 1
+  alias: item
+permalink: "/marketplaces/{{ item.marketplace | slugify }}/{{ item.category | slugify }}/index.html"
+---
+
+{# marketplace-category.njk #}
+{# Add 'bg-white dark:bg-slate-900' and 'text-slate-900 dark:text-slate-100' #}
+<div class="max-w-7xl mx-auto px-4 py-8 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen">
+  
+  <a href="/marketplaces/{{ item.marketplace | slugify }}/" class="text-indigo-600 dark:text-indigo-400 hover:underline mb-4 block">
+    ← Back to {{ item.marketplace }}
+  </a>
+  
+  {# Ensure heading also has specific text colors #}
+  <h1 class="text-3xl font-bold mb-8 capitalize text-slate-900 dark:text-white">
+    {{ item.category }} Finds in {{ item.marketplace }}
+  </h1>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for product in item.products %}
+        {% include "product-card.njk" %}
+    {% endfor %}
+  </div>
+</div>

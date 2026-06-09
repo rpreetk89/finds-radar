@@ -5,6 +5,14 @@ module.exports = function(eleventyConfig) {
   // 1. REGISTER FILTERS FIRST (Prevents "filter not found" errors)
   eleventyConfig.addFilter("jsonify", (value) => JSON.stringify(value));
   
+  eleventyConfig.addFilter("limit", (array, limit) => {
+  return array.slice(0, limit);
+});
+
+  eleventyConfig.addFilter("split", function(value, delimiter) {
+    return value.split(delimiter);
+  });
+
   // Static assets
   eleventyConfig.addPassthroughCopy("admin");
   eleventyConfig.addPassthroughCopy("images");
@@ -63,6 +71,26 @@ eleventyConfig.addCollection("customCategories", function(collectionApi) {
         return { data: content };
       });
   });
+
+  // 4. NEW: Marketplace-Category Grouping Collection
+  // This groups products into a structured object so we don't have to filter in HTML
+// Replace the old marketplaceCategories collection with this:
+// Add this new collection to .eleventy.js
+eleventyConfig.addCollection("marketplaceGroups", function() {
+  const products = JSON.parse(fs.readFileSync(path.join(__dirname, "_data/products.json"), "utf8")).products;
+  const groups = {};
+
+  products.forEach(product => {
+    const mkp = product.marketplace || "Unknown";
+    if (!groups[mkp]) groups[mkp] = { name: mkp, categories: {} };
+    
+    product.usage_category.forEach(cat => {
+      if (!groups[mkp].categories[cat]) groups[mkp].categories[cat] = [];
+      groups[mkp].categories[cat].push(product);
+    });
+  });
+  return Object.values(groups);
+});
 
   return {
     dir: { input: ".", output: "_site", data: "_data" },

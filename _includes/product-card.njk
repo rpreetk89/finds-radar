@@ -1,3 +1,5 @@
+{# _includes/product-card.njk #}
+{% if product %}
 <div 
   class="cursor-pointer group overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 aspect-square shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-slate-800"
   onclick='openModal({{ product | jsonify | safe }})'
@@ -14,3 +16,4 @@
     </div>
   {% endif %}
 </div>
+{% endif %}

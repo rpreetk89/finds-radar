@@ -17,15 +17,16 @@ title: FindsRadar
     {% for mp in collections.marketplaces %}
       {# Calculate count dynamically #}
       {% set count = 0 %}
-      {% for item in products.products %}
-        {% if item.marketplace == mp.data.name %}
-          {% set count = count + 1 %}
-        {% endif %}
-      {% endfor %}
+      {% if products and products.products %}
+        {% for item in products.products %}
+          {% if item.marketplace == mp.data.name %}
+            {% set count = count + 1 %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
 
-      <a href="/marketplaces/{{ mp.data.name | slugify }}/" class="border border-slate-200 rounded-xl p-6 flex flex-col items-center hover:shadow-lg transition-shadow">
-        <span class="font-bold text-lg">{{ mp.data.name }}</span>
-        <span class="text-sm text-slate-500 mt-1">{{ count }}+ finds</span>
+      <a href="/marketplaces/{{ mp.data.name | slugify }}/" class="btn">
+        Shop {{ mp.data.name }} ({{ count }})
       </a>
     {% endfor %}
   </div>
