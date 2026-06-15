@@ -1,25 +1,29 @@
 {# _includes/breadcrumbs.njk #}
-{% if page.url != "/" %}
 <nav class="max-w-7xl mx-auto px-4 pt-4 pb-2 text-sm text-slate-500 dark:text-slate-400">
   <ol class="flex items-center space-x-2">
-    {# Home Link #}
-    <li><a href="/" class="hover:text-indigo-600 dark:hover:text-indigo-400">Home</a></li>
+    {# Always show Home #}
+    <li>
+      <a href="/" class="{% if page.url == '/' %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-indigo-600 dark:hover:text-indigo-400{% endif %}">
+        Home
+      </a>
+    </li>
     
-    {# Dynamic Path Links #}
-    {% set paths = page.url | split('/') %}
-    {% set currentPath = "" %}
-    
-    {% for path in paths %}
-      {% if path != "" %}
-        {% set currentPath = currentPath + "/" + path %}
-        <li class="flex items-center">
-          <span class="mx-2">/</span>
-          <a href="{{ currentPath }}" class="capitalize hover:text-indigo-600 dark:hover:text-indigo-400">
-            {{ path | replace("-", " ") }}
-          </a>
-        </li>
-      {% endif %}
-    {% endfor %}
+    {# Only show dynamic segments if NOT on Home #}
+    {% if page.url != "/" %}
+      {% set paths = page.url | split('/') %}
+      {% set currentPath = "" %}
+      
+      {% for path in paths %}
+        {% if path != "" %}
+          {% set currentPath = currentPath + "/" + path %}
+          <li class="flex items-center">
+            <span class="mx-2">/</span>
+            <a href="{{ currentPath }}" class="capitalize hover:text-indigo-600 dark:hover:text-indigo-400">
+              {{ path | replace("-", " ") }}
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
   </ol>
 </nav>
-{% endif %}
