@@ -1,7 +1,7 @@
 backend:
   name: github
   repo: rpreetk89/finds-radar
-  branch: dev
+  branch: main
   base_url: https://still-mouse-cffe.rpreetk-89.workers.dev
   auth_endpoint: auth
 
