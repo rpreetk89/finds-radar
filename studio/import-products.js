@@ -5,7 +5,7 @@ const client = createClient({
   dataset: 'dev', // Change to 'production' when you are ready to import to prod
   useCdn: false,
   apiVersion: '2026-06-26',
-  token: 'skd6zOkYkakBrIZQQyuoyEYS29MGtpsYfptJZbYzDjXKaKnqplbztCezOGVoYnrRquEEN9dHQ3pkQphHsKGD1eLX0Mw3N13BIPEr03DjVgYnTk0Ifmb1PNX8BrDantEZ0RIVZaFsa9OpMzy9A3uSMAX1OM2dmdVITXwqRthDVLAE2aL02P76' // Generate this in your Sanity Manage dashboard
+  token: '' // Generate this in your Sanity Manage dashboard
 })
 
 async function updateReferences() {
