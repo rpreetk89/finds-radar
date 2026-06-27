@@ -14,20 +14,21 @@ title: FindsRadar
 <section class="max-w-7xl mx-auto px-4 pb-12">
   <h2 class="text-xl font-bold mb-6">Shop by Marketplace</h2>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-    {% for mp in collections.marketplaces %}
-      {# Calculate count dynamically #}
-      {% set count = 0 %}
-      {% if products and products.products %}
-        {% for item in products.products %}
-          {% if item.marketplace == mp.data.name %}
+    {% for mp in marketplaces %}
+      {% if mp.country.code == 'us' %}
+        {% set count = 0 %}
+        {% for item in products.products | filterByCountry('us') %}
+          {% if item.marketplace.slug == mp.slug %}
             {% set count = count + 1 %}
           {% endif %}
         {% endfor %}
+        {% if count > 0 %}
+          <a href="/marketplaces/{{ mp.slug }}/"
+             class="flex items-center justify-center px-5 py-3 bg-slate-800 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-600 transition-colors">
+            Shop {{ mp.name }} <span class="ml-2 text-xs opacity-60">({{ count }})</span>
+          </a>
+        {% endif %}
       {% endif %}
-
-      <a href="/marketplaces/{{ mp.data.name | slugify }}/" class="btn">
-        Shop {{ mp.data.name }} ({{ count }})
-      </a>
     {% endfor %}
   </div>
 </section>
@@ -35,9 +36,12 @@ title: FindsRadar
 <div class="max-w-7xl mx-auto px-4 pb-12">
   <h2 class="text-xl font-bold mb-6">Shop by Category</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    {% set categoryBaseUrl = '/categories/' %}
     {% for cat in collections.customCategories %}
       {% set catName = cat %}
       {% include "category-card.njk" %}
+    {% else %}
+      <p class="text-slate-500 col-span-4">No categories found.</p>
     {% endfor %}
   </div>
 </div>

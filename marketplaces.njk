@@ -12,13 +12,13 @@ permalink: /marketplaces/index.html
     {% for group in collections.marketplaceGroups %}
       <div class="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow-md transition">
         <h2 class="text-xl font-bold mb-4 capitalize">{{ group.name }}</h2>
-        
-        {# Ensure the link uses the variable from the loop #}
-        <a href="/marketplaces/{{ group.name | slugify }}/" 
+        <a href="/marketplaces/{{ group.slug }}/"
            class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
            Browse {{ group.name }} →
         </a>
       </div>
+    {% else %}
+      <p class="text-slate-500 col-span-3">No marketplaces found.</p>
     {% endfor %}
   </div>
 </div>

@@ -1,0 +1,2 @@
+# Redirect bare /cms to the dev workspace
+/cms  /cms/dev/  301
