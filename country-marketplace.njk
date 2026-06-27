@@ -19,18 +19,14 @@ eleventyComputed:
     {{ page.countryName }}
   </a>
 
-  <h1 class="text-3xl font-bold mb-8 capitalize">{{ page.marketplace.name }}</h1>
+  <h1 class="text-3xl font-bold mb-2 capitalize">{{ page.marketplace.name }}</h1>
+  <p class="text-slate-500 dark:text-slate-400 mb-8">Browse categories on {{ page.marketplace.name }}</p>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  {% set categoryBaseUrl = '/' + page.countryCode + '/categories/' %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
     {% for catName, items in page.marketplace.categories %}
-      <div class="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow-md transition">
-        <h3 class="text-xl font-bold capitalize mb-4">{{ catName }}</h3>
-        <div class="grid grid-cols-2 gap-2">
-          {% for product in items | limit(4) %}
-            {% include "product-card.njk" %}
-          {% endfor %}
-        </div>
-      </div>
+      {% set productList = items %}
+      {% include "category-card.njk" %}
     {% else %}
       <p class="text-slate-500 col-span-4">No products yet for this marketplace.</p>
     {% endfor %}

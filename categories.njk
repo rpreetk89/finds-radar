@@ -1,0 +1,25 @@
+---
+layout: base.njk
+title: Categories — FindsRadar
+permalink: /categories/index.html
+---
+<div class="max-w-7xl mx-auto px-4 py-8 text-slate-900 dark:text-white">
+  <h1 class="text-3xl font-bold mb-2">Browse Categories</h1>
+  <p class="text-slate-500 dark:text-slate-400 mb-8">All curated finds, organised by category.</p>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {% for catPage in collections.categoryPages %}
+      {% if catPage.isDefault %}
+        <a href="/categories/{{ catPage.catName }}/"
+           class="block p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-orange-300 dark:hover:border-orange-600 transition-all">
+          <div class="text-lg font-bold capitalize mb-1">{{ catPage.catDisplay }}</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">
+            {{ catPage.products.length }} find{{ 's' if catPage.products.length != 1 else '' }}
+          </div>
+        </a>
+      {% endif %}
+    {% else %}
+      <p class="text-slate-500 col-span-4">No categories found.</p>
+    {% endfor %}
+  </div>
+</div>

@@ -6,7 +6,8 @@ module.exports = async function () {
       name,
       code,
       flag,
-      isDefault
+      isDefault,
+      showInNav
     }
   `);
   // Deduplicate by code — Sanity may have duplicate documents from manual + seed entry

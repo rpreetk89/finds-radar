@@ -7,9 +7,13 @@
         <span class="text-orange-500">Radar</span>
       </a>
 
-      <div class="hidden md:flex flex-1">
-        <input type="text" placeholder="Search curated finds..."
+      <div class="hidden md:flex flex-1 relative">
+        <input id="search-input" type="text" placeholder="Search curated finds..."
+          autocomplete="off"
           class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-2 px-4 focus:ring-2 focus:ring-orange-500 text-sm">
+        <div id="search-results"
+             class="hidden absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden z-50 max-h-80 overflow-y-auto">
+        </div>
       </div>
 
       <div class="flex items-center gap-2 shrink-0">
@@ -26,16 +30,18 @@
           </summary>
           <div class="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden z-50 min-w-[170px]">
             {% for c in countries %}
-              <a href="{{ '/' if c.isDefault else '/' + c.code + '/' }}"
-                 data-country-code="{{ c.code }}"
-                 data-country-default="{{ 'true' if c.isDefault else 'false' }}"
-                 class="country-option flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                <img src="https://flagcdn.com/w20/{{ c.code }}.png"
-                     srcset="https://flagcdn.com/w40/{{ c.code }}.png 2x"
-                     alt="{{ c.name }}"
-                     class="w-5 h-3.5 object-cover rounded-sm">
-                <span class="country-name">{{ c.name }}</span>
-              </a>
+              {% if c.isDefault or c.showInNav %}
+                <a href="/{{ c.code }}/"
+                   data-country-code="{{ c.code }}"
+                   data-country-default="{{ 'true' if c.isDefault else 'false' }}"
+                   class="country-option flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                  <img src="https://flagcdn.com/w20/{{ c.code }}.png"
+                       srcset="https://flagcdn.com/w40/{{ c.code }}.png 2x"
+                       alt="{{ c.name }}"
+                       class="w-5 h-3.5 object-cover rounded-sm">
+                  <span class="country-name">{{ c.name }}</span>
+                </a>
+              {% endif %}
             {% endfor %}
           </div>
         </details>
@@ -56,8 +62,8 @@
     options.forEach(function (el) {
       const code = el.dataset.countryCode;
       const isDefault = el.dataset.countryDefault === 'true';
-      const isActive = isDefault
-        ? (path === '/' || path === '/index.html')
+      const isActive = path === '/' || path === '/index.html'
+        ? isDefault
         : path.startsWith('/' + code + '/');
 
       if (isActive) {
@@ -79,6 +85,63 @@
       el.addEventListener('click', function () {
         document.getElementById('country-details').removeAttribute('open');
       });
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    var input = document.getElementById('search-input');
+    var resultsEl = document.getElementById('search-results');
+    if (!input || !resultsEl) return;
+
+    // Detect current country from URL path (e.g. /ca/ → 'ca', / → 'us')
+    var firstSeg = window.location.pathname.split('/').filter(Boolean)[0] || '';
+    var countryCode = /^[a-z]{2}$/.test(firstSeg) ? firstSeg : 'us';
+
+    var fuse = null;
+
+    function initFuse() {
+      if (fuse || !window.Fuse || !window.__FINDSRADAR_PRODUCTS) return;
+      var scoped = window.__FINDSRADAR_PRODUCTS.filter(function (p) {
+        return p.country && p.country.code === countryCode;
+      });
+      fuse = new window.Fuse(scoped, {
+        keys: ['name', 'description'],
+        threshold: 0.4,
+        includeScore: true,
+      });
+    }
+
+    function renderResults(hits) {
+      if (!hits.length) {
+        resultsEl.innerHTML = '<div class="px-4 py-3 text-sm text-slate-400">No results found.</div>';
+        return;
+      }
+      resultsEl.innerHTML = hits.slice(0, 6).map(function (r) {
+        var p = r.item;
+        var safeData = JSON.stringify(p).replace(/"/g, '&quot;');
+        return '<button onclick="openModal(' + safeData + '); document.getElementById(\'search-results\').classList.add(\'hidden\'); document.getElementById(\'search-input\').value = \'\';"'
+          + ' class="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">'
+          + '<div class="text-sm font-medium text-slate-900 dark:text-white">' + (p.name || '') + '</div>'
+          + (p.price ? '<div class="text-xs text-slate-400 mt-0.5">' + p.price + '</div>' : '')
+          + '</button>';
+      }).join('');
+    }
+
+    input.addEventListener('input', function () {
+      initFuse();
+      var q = this.value.trim();
+      if (!q) { resultsEl.classList.add('hidden'); return; }
+      if (!fuse) { resultsEl.classList.add('hidden'); return; }
+      renderResults(fuse.search(q));
+      resultsEl.classList.remove('hidden');
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!input.contains(e.target) && !resultsEl.contains(e.target)) {
+        resultsEl.classList.add('hidden');
+      }
     });
   })();
 </script>

@@ -9,15 +9,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
 </head>
-<body class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300">
-    
+<body class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300 flex flex-col min-h-screen">
+
     {% include "header.njk" %}
     
     {# Add the breadcrumbs here #}
     
     {% include "breadcrumbs.njk" %}
     
+    <main class="flex-1">
     {{ content | safe }}
+    </main>
+
+    {% include "footer.njk" %}
 
 <div id="lightbox" class="fixed inset-0 z-[100] hidden bg-black/80 flex items-center justify-center p-4">
   <div class="bg-white dark:bg-slate-800 max-w-lg w-full rounded-3xl p-6 relative">
@@ -45,6 +49,7 @@
 <script>
   window.__FINDSRADAR_PRODUCTS = {{ products.products | jsonify | safe }};
 </script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7/dist/fuse.min.js"></script>
 <script src="/assets/js/lightbox.js" defer></script>
 <script>
   const toggleBtn = document.getElementById('theme-toggle');

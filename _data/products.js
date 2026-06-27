@@ -8,10 +8,10 @@ module.exports = async function () {
       description,
       price,
       affiliate_link,
-      usage_category,
+      featured,
+      "categories": categories[]->name,
       "marketplace": marketplace->{ name, "slug": slug.current },
       "country": country->{ name, code, flag },
-      "categories": categories[]->name,
       media[] { url, type }
     }
   `);

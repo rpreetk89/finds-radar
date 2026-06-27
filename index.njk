@@ -22,10 +22,12 @@ title: FindsRadar
             {% set count = count + 1 %}
           {% endif %}
         {% endfor %}
-        <a href="/marketplaces/{{ mp.slug }}/"
-           class="flex items-center justify-center px-5 py-3 bg-slate-800 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-600 transition-colors">
-          Shop {{ mp.name }} <span class="ml-2 text-xs opacity-60">({{ count }})</span>
-        </a>
+        {% if count > 0 %}
+          <a href="/marketplaces/{{ mp.slug }}/"
+             class="flex items-center justify-center px-5 py-3 bg-slate-800 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-600 transition-colors">
+            Shop {{ mp.name }} <span class="ml-2 text-xs opacity-60">({{ count }})</span>
+          </a>
+        {% endif %}
       {% endif %}
     {% endfor %}
   </div>
@@ -34,6 +36,7 @@ title: FindsRadar
 <div class="max-w-7xl mx-auto px-4 pb-12">
   <h2 class="text-xl font-bold mb-6">Shop by Category</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    {% set categoryBaseUrl = '/categories/' %}
     {% for cat in collections.customCategories %}
       {% set catName = cat %}
       {% include "category-card.njk" %}

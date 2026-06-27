@@ -11,19 +11,11 @@ export default defineType({
     defineField({name: 'affiliate_link', title: 'Affiliate Link', type: 'url'}),
     defineField({name: 'published', title: 'Published', type: 'boolean', initialValue: false}),
     defineField({
-      name: 'usage_category',
-      title: 'Usage Categories',
-      type: 'array',
-      of: [{type: 'string'}],
-      options: {
-        list: [
-          {title: 'Health', value: 'Health'},
-          {title: 'Home', value: 'Home'},
-          {title: 'Tech', value: 'Tech'},
-          {title: 'Travel', value: 'Travel'},
-        ],
-        layout: 'tags',
-      },
+      name: 'featured',
+      title: 'Show in Category Card',
+      type: 'boolean',
+      description: 'Pin to the homepage category card (max 4 per category shown)',
+      initialValue: false,
     }),
     defineField({
       name: 'marketplace',

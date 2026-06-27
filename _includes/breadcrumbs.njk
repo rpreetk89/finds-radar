@@ -1,29 +1,41 @@
 {# _includes/breadcrumbs.njk #}
+{% set _segments = page.url | split('/') %}
+{% set _firstSeg = '' %}
+{% for _s in _segments %}
+  {% if _s and not _firstSeg %}{% set _firstSeg = _s %}{% endif %}
+{% endfor %}
+{# If first segment maps to a country name it IS a country code → home = /{code}/ #}
+{% set _countryLabel = _firstSeg | codeToCountry(countries) %}
+{% set homeUrl = ('/' + _firstSeg + '/') if (_countryLabel != _firstSeg) else '/' %}
+
 <nav class="max-w-7xl mx-auto px-4 pt-4 pb-2 text-sm text-slate-500 dark:text-slate-400">
-  <ol class="flex items-center flex-wrap gap-y-1 space-x-2">
+  <ol class="flex items-center justify-start flex-wrap gap-y-1 gap-x-0">
     <li>
-      <a href="/" class="{% if page.url == '/' %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-orange-500 dark:hover:text-orange-400{% endif %}">
+      <a href="{{ homeUrl }}"
+         class="{% if page.url == '/' or page.url == homeUrl %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-orange-500 dark:hover:text-orange-400{% endif %}">
         Home
       </a>
     </li>
 
     {% if page.url != "/" %}
-      {% set paths = page.url | split('/') %}
       {% set currentPath = "" %}
-
-      {% for segment in paths %}
+      {% for segment in _segments %}
         {% if segment != "" %}
           {% set currentPath = currentPath + "/" + segment %}
-          {# Map country codes to full names; humanise slugs for everything else #}
           {% set label = segment | codeToCountry(countries) %}
           {% if label == segment %}
             {% set label = segment | replace("-", " ") %}
           {% endif %}
           <li class="flex items-center">
-            <span class="mx-2">/</span>
-            <a href="{{ currentPath }}/" class="capitalize hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-              {{ label }}
-            </a>
+            <span class="mx-1.5 text-slate-300 dark:text-slate-600">/</span>
+            {% if (currentPath + "/") == page.url %}
+              <span class="capitalize font-semibold text-slate-700 dark:text-slate-200">{{ label }}</span>
+            {% else %}
+              <a href="{{ currentPath }}/"
+                 class="capitalize hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+                {{ label }}
+              </a>
+            {% endif %}
           </li>
         {% endif %}
       {% endfor %}

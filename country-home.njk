@@ -1,6 +1,6 @@
 ---
 pagination:
-  data: collections.nonDefaultCountryData
+  data: collections.allCountryData
   size: 1
   alias: country
 permalink: "/{{ country.code }}/index.html"
@@ -8,6 +8,15 @@ layout: base.njk
 eleventyComputed:
   title: "FindsRadar — {{ country.name }}"
 ---
+
+{# Resolve base URLs — US marketplace/category pages live at /marketplaces/ and /categories/ #}
+{% if country.isDefault %}
+  {% set mpBase = '/marketplaces/' %}
+  {% set categoryBaseUrl = '/categories/' %}
+{% else %}
+  {% set mpBase = '/' + country.code + '/marketplaces/' %}
+  {% set categoryBaseUrl = '/' + country.code + '/categories/' %}
+{% endif %}
 
 <section class="max-w-7xl mx-auto px-4 py-12 md:py-16 flex flex-col items-center justify-center text-center">
   <div class="mb-6">
@@ -30,10 +39,12 @@ eleventyComputed:
       {% for cat, items in mp.categories %}
         {% set count = count + items.length %}
       {% endfor %}
-      <a href="/{{ country.code }}/marketplaces/{{ mp.slug }}/"
-         class="flex items-center justify-center px-5 py-3 bg-slate-800 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-600 transition-colors">
-        Shop {{ mp.name }} <span class="ml-2 text-xs opacity-60">({{ count }})</span>
-      </a>
+      {% if count > 0 %}
+        <a href="{{ mpBase }}{{ mp.slug }}/"
+           class="flex items-center justify-center px-5 py-3 bg-slate-800 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-600 transition-colors">
+          Shop {{ mp.name }} <span class="ml-2 text-xs opacity-60">({{ count }})</span>
+        </a>
+      {% endif %}
     {% else %}
       <p class="text-slate-500 col-span-4">No marketplaces yet for {{ country.name }}.</p>
     {% endfor %}
