@@ -1,5 +1,2 @@
-# Redirect bare /cms to /cms/ so the SPA loads
-/cms  /cms/  301
-
-# SPA fallback — all routes under /cms/ serve index.html
-/cms/*  /cms/index.html  200
+# Redirect bare /cms to the dev workspace
+/cms  /cms/dev/  301
