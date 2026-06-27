@@ -7,3 +7,6 @@ _site/
 # System Files
 .DS_Store
 .env
+
+# Staged-for-deletion files
+*.tbdel

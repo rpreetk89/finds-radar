@@ -1,0 +1,54 @@
+---
+pagination:
+  data: collections.nonDefaultCountryData
+  size: 1
+  alias: country
+permalink: "/{{ country.code }}/index.html"
+layout: base.njk
+eleventyComputed:
+  title: "FindsRadar — {{ country.name }}"
+---
+
+<section class="max-w-7xl mx-auto px-4 py-12 md:py-16 flex flex-col items-center justify-center text-center">
+  <div class="mb-6">
+    {% include "hero-logo.njk" %}
+  </div>
+  <p class="text-lg text-slate-500 dark:text-slate-400 mb-8 font-medium flex items-center justify-center gap-2">
+    <img src="https://flagcdn.com/w20/{{ country.code }}.png"
+         srcset="https://flagcdn.com/w40/{{ country.code }}.png 2x"
+         alt="{{ country.name }}"
+         class="w-5 h-3.5 object-cover rounded-sm inline-block">
+    Hot finds, handpicked for {{ country.name }}.
+  </p>
+</section>
+
+<section class="max-w-7xl mx-auto px-4 pb-12">
+  <h2 class="text-xl font-bold mb-6">Shop by Marketplace</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    {% for mp in country.marketplaces %}
+      {% set count = 0 %}
+      {% for cat, items in mp.categories %}
+        {% set count = count + items.length %}
+      {% endfor %}
+      <a href="/{{ country.code }}/marketplaces/{{ mp.slug }}/"
+         class="flex items-center justify-center px-5 py-3 bg-slate-800 dark:bg-slate-700 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 dark:hover:bg-orange-600 transition-colors">
+        Shop {{ mp.name }} <span class="ml-2 text-xs opacity-60">({{ count }})</span>
+      </a>
+    {% else %}
+      <p class="text-slate-500 col-span-4">No marketplaces yet for {{ country.name }}.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="max-w-7xl mx-auto px-4 pb-12">
+  <h2 class="text-xl font-bold mb-6">Shop by Category</h2>
+  {% set productList = products.products | filterByCountry(country.code) %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    {% for cat in collections.customCategories %}
+      {% set catName = cat %}
+      {% include "category-card.njk" %}
+    {% else %}
+      <p class="text-slate-500 col-span-4">No categories found.</p>
+    {% endfor %}
+  </div>
+</div>

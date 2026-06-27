@@ -1,23 +1,32 @@
-const { createClient } = require('@sanity/client');
+const client = require('../lib/sanityClient');
 
-const client = createClient({
-  projectId: '2qbe726s',
-  dataset: 'dev', // Switch to 'production' once you import your data
-  useCdn: true,
-  apiVersion: '2026-06-26'
-});
-
-module.exports = async function() {
-  // This query gets products and "joins" the referenced fields
-  return await client.fetch(`
-    *[_type == "product"]{
+module.exports = async function () {
+  const all = await client.fetch(`
+    *[_type == "product" && published != false] | order(name asc) {
+      _id,
       name,
       description,
+      price,
       affiliate_link,
-      "marketplace": marketplace->name,
-      "country": country->name,
+      usage_category,
+      "marketplace": marketplace->{ name, "slug": slug.current },
+      "country": country->{ name, code, flag },
       "categories": categories[]->name,
-      media
+      media[] { url, type }
     }
   `);
+  // Prefer seed IDs (start with "product-"), deduplicate by name
+  all.sort((a, b) => {
+    const aIsSeed = a._id.startsWith('product-') ? -1 : 1;
+    const bIsSeed = b._id.startsWith('product-') ? -1 : 1;
+    return aIsSeed - bIsSeed;
+  });
+  const nameSeen = new Set();
+  const products = all.filter((p) => {
+    const key = (p.name || '').toLowerCase().trim();
+    if (!key || nameSeen.has(key)) return false;
+    nameSeen.add(key);
+    return true;
+  });
+  return { products };
 };

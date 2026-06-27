@@ -3,7 +3,6 @@ import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 
-// 1. Define shared config
 const baseConfig = {
   plugins: [structureTool(), visionTool()],
   schema: {
@@ -11,7 +10,6 @@ const baseConfig = {
   },
 }
 
-// 2. Export workspaces
 export default defineConfig([
   {
     ...baseConfig,
@@ -19,7 +17,9 @@ export default defineConfig([
     title: 'FindsRadar (Prod)',
     projectId: '2qbe726s',
     dataset: 'production',
-    basePath: '/cms/production', // Changed to /cms/production
+    basePath: '/cms/prod',
+    // Add this line below
+    // assetPublicPath: '/cms/static', 
   },
   {
     ...baseConfig,
@@ -27,6 +27,8 @@ export default defineConfig([
     title: 'FindsRadar (Dev)',
     projectId: '2qbe726s',
     dataset: 'dev',
-    basePath: '/cms', // Your new main entry point
+    basePath: '/cms/dev',
+    // Add this line below
+   // assetPublicPath: '/cms/static',
   },
 ])

@@ -5,11 +5,8 @@ export default defineCliConfig({
     projectId: '2qbe726s',
     dataset: 'dev'
   },
-  deployment: {
-    /**
-     * Enable auto-updates for studios.
-     * Learn more at https://www.sanity.io/docs/studio/latest-version-of-sanity#k47faf43faf56
-     */
-    autoUpdates: true,
-  },
+  // This tells the Sanity build process to prepend /cms/ to asset URLs
+ // vite: {
+ //   base: '/cms/'
+ // }
 })

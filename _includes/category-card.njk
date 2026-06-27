@@ -1,18 +1,17 @@
 {# _includes/category-card.njk #}
+{# Accepts catName (string). If productList is set by the parent, uses that; falls back to global products.products #}
+{% set productSource = productList if productList else products.products %}
 <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
   <h2 class="text-lg font-bold text-slate-800 dark:text-white capitalize mb-4">{{ catName }}</h2>
-  
-  {# Updated grid to be 2 columns on mobile, 3 on desktop #}
+
   <div class="grid grid-cols-3 md:grid-cols-2 gap-2">
-    {% for product in products.products %}
-      {# Your logic to find matching categories #}
+    {% for product in productSource %}
       {% set isMatch = false %}
       {% for category in product.usage_category %}
         {% if category | lower == catName | lower %}
           {% set isMatch = true %}
         {% endif %}
       {% endfor %}
-
       {% if isMatch %}
         {% include "product-card.njk" %}
       {% endif %}

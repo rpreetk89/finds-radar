@@ -4,8 +4,10 @@
   "description": "��#\u0000 \u0000f\u0000i\u0000n\u0000d\u0000s\u0000-\u0000r\u0000a\u0000d\u0000a\u0000r\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-  "build": "npx @11ty/eleventy && cd studio && npm install && npm run build && mkdir -p ../_site/cms && cp -r dist/* ../_site/cms/",
-  "start": "npx @11ty/eleventy --serve"
+    "dev": "npx @11ty/eleventy --serve",
+    "seed": "node seed-sanity.js",
+    "cleanup": "node cleanup-sanity.js",
+    "build": "npm install --prefix studio && npx @11ty/eleventy && npm run build --prefix studio && npx mkdirp _site/cms && npx ncp studio/dist _site/cms && node -e \"const fs=require('fs'); const f='_site/cms/index.html'; const html=fs.readFileSync(f,'utf8').replace(/\\/static\\//g,'/cms/static/'); fs.writeFileSync(f,html); fs.mkdirSync('_site/cms/dev',{recursive:true}); fs.mkdirSync('_site/cms/prod',{recursive:true}); fs.writeFileSync('_site/cms/dev/index.html',html); fs.writeFileSync('_site/cms/prod/index.html',html);\""
   },
   "repository": {
     "type": "git",
@@ -20,9 +22,12 @@
   },
   "homepage": "https://github.com/rpreetk89/finds-radar#readme",
   "devDependencies": {
-    "@11ty/eleventy": "^3.1.6"
+    "@11ty/eleventy": "^3.1.6",
+    "mkdirp": "^3.0.1",
+    "ncp": "^2.0.0"
   },
   "dependencies": {
-    "@sanity/client": "^7.23.0"
+    "@sanity/client": "^7.23.0",
+    "dotenv": "^17.4.2"
   }
 }
