@@ -16,6 +16,10 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter('filterByCountry', (products, code) =>
     (products || []).filter((p) => p.country?.code === code),
   );
+  eleventyConfig.addFilter('codeToCountry', (code, countriesList) => {
+    const match = (countriesList || []).find((c) => c.code === (code || '').toLowerCase());
+    return match ? match.name : code;
+  });
 
   // ── Static assets ─────────────────────────────────────────────────────────
   eleventyConfig.addPassthroughCopy('images');

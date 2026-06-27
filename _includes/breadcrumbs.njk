@@ -1,25 +1,28 @@
 {# _includes/breadcrumbs.njk #}
 <nav class="max-w-7xl mx-auto px-4 pt-4 pb-2 text-sm text-slate-500 dark:text-slate-400">
-  <ol class="flex items-center space-x-2">
-    {# Always show Home #}
+  <ol class="flex items-center flex-wrap gap-y-1 space-x-2">
     <li>
-      <a href="/" class="{% if page.url == '/' %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-indigo-600 dark:hover:text-indigo-400{% endif %}">
+      <a href="/" class="{% if page.url == '/' %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-orange-500 dark:hover:text-orange-400{% endif %}">
         Home
       </a>
     </li>
-    
-    {# Only show dynamic segments if NOT on Home #}
+
     {% if page.url != "/" %}
       {% set paths = page.url | split('/') %}
       {% set currentPath = "" %}
-      
-      {% for path in paths %}
-        {% if path != "" %}
-          {% set currentPath = currentPath + "/" + path %}
+
+      {% for segment in paths %}
+        {% if segment != "" %}
+          {% set currentPath = currentPath + "/" + segment %}
+          {# Map country codes to full names; humanise slugs for everything else #}
+          {% set label = segment | codeToCountry(countries) %}
+          {% if label == segment %}
+            {% set label = segment | replace("-", " ") %}
+          {% endif %}
           <li class="flex items-center">
             <span class="mx-2">/</span>
-            <a href="{{ currentPath }}" class="capitalize hover:text-indigo-600 dark:hover:text-indigo-400">
-              {{ path | replace("-", " ") }}
+            <a href="{{ currentPath }}/" class="capitalize hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+              {{ label }}
             </a>
           </li>
         {% endif %}

@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="/assets/css/logo-styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-
+    <meta name="description" content="{{ metaDescription if metaDescription else 'FindsRadar — hot finds, handpicked from top marketplaces.' }}">
+    <title>{{ title if title else 'FindsRadar' }}</title>
+    <link rel="stylesheet" href="/assets/css/logo-styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-      }
-    </script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
 </head>
 <body class="bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300">
     

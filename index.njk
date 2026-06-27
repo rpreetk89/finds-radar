@@ -17,7 +17,7 @@ title: FindsRadar
     {% for mp in marketplaces %}
       {% if mp.country.code == 'us' %}
         {% set count = 0 %}
-        {% for item in products.products %}
+        {% for item in products.products | filterByCountry('us') %}
           {% if item.marketplace.slug == mp.slug %}
             {% set count = count + 1 %}
           {% endif %}
