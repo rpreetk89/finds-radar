@@ -1,19 +1,65 @@
-{# _includes/product-card.njk #}
+{# _includes/product-card.njk — Rich product card for grids #}
+{# Requires: product object with _id, name, description, categories, marketplace, country, media, affiliate_link #}
 {% if product %}
-<div 
-  class="cursor-pointer group overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 aspect-square shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-slate-800"
-  onclick='openModal({{ product | jsonify | safe }})'
+<div
+  class="product-card group relative rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden flex flex-col"
+  data-name="{{ product.name | lower }}"
+  data-description="{{ (product.description or '') | lower }}"
+  data-categories="{{ (product.categories or []) | join(',') | lower }}"
+  data-marketplace="{{ product.marketplace.slug if product.marketplace else '' }}"
+  data-marketplace-name="{{ product.marketplace.name if product.marketplace else '' }}"
 >
-  {% if product.media and product.media[0] %}
-    <img 
-      src="{{ product.media[0].url }}" 
-      alt="{{ product.name }}" 
-      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+
+  {# ── Image (click → modal) ── #}
+  <div
+    class="cursor-pointer relative overflow-hidden flex-shrink-0"
+    style="aspect-ratio:1/1"
+    onclick="openModalById('{{ product._id }}')"
+  >
+    {% if product.media and product.media[0] %}
+      <img
+        src="{{ product.media[0].url }}"
+        alt="{{ product.name }}"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        loading="lazy"
+      >
+    {% else %}
+      <div class="w-full h-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs text-slate-400 dark:text-slate-500">
+        No Image
+      </div>
+    {% endif %}
+
+    {# Wishlist heart — stopPropagation prevents modal from opening #}
+    <button
+      class="wishlist-btn absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center rounded-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-sm shadow hover:scale-110 transition-transform"
+      data-id="{{ product._id }}"
+      aria-label="Save to wishlist"
+      onclick="toggleWishlist(event, '{{ product._id }}')"
     >
-  {% else %}
-    <div class="w-full h-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs text-slate-400 dark:text-slate-500">
-      No Image
-    </div>
-  {% endif %}
+      <svg class="heart-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+      </svg>
+    </button>
+  </div>
+
+  {# ── Card body ── #}
+  <div class="p-3 flex flex-col gap-1.5 flex-1">
+
+    {# Marketplace source badge — DATA-SOURCE: sanity #}
+    {% if product.marketplace %}
+      <span class="text-xs text-slate-400 dark:text-slate-500 font-medium truncate">
+        {{ product.marketplace.name }}{% if product.country %} · {{ product.country.name }}{% endif %}
+      </span>
+    {% endif %}
+
+    {# Product name (click → modal) #}
+    <button
+      class="text-left text-sm font-semibold text-slate-800 dark:text-white line-clamp-2 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+      onclick="openModalById('{{ product._id }}')"
+    >
+      {{ product.name }}
+    </button>
+
+  </div>
 </div>
 {% endif %}

@@ -25,10 +25,67 @@ module.exports = function (eleventyConfig) {
   );
   eleventyConfig.addFilter('currentYear', () => new Date().getFullYear());
 
+  // Sort products by _createdAt descending (newest first)
+  eleventyConfig.addFilter('newestFirst', (arr) =>
+    [...(arr || [])].sort((a, b) => new Date(b._createdAt || 0) - new Date(a._createdAt || 0)),
+  );
+
+  // Filter to products added within the last N days
+  eleventyConfig.addFilter('addedWithinDays', (arr, days) => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    return (arr || []).filter((p) => p._createdAt && new Date(p._createdAt) >= cutoff);
+  });
+
+  // Return the most recently featured product; falls back to most recently added
+  eleventyConfig.addFilter('featuredProduct', (arr) => {
+    const all = arr || [];
+    const pool = all.filter((p) => p.featured);
+    const sorted = [...(pool.length ? pool : all)].sort(
+      (a, b) => new Date(b._createdAt || 0) - new Date(a._createdAt || 0),
+    );
+    return sorted[0] || null;
+  });
+
+  // Return top N featured products; falls back to most recently added if <N are featured
+  eleventyConfig.addFilter('topFeatured', (arr, count) => {
+    const n = count || 5;
+    const all = arr || [];
+    const featured = all.filter((p) => p.featured);
+    const pool = featured.length >= n ? featured : all;
+    return [...pool]
+      .sort((a, b) => new Date(b._createdAt || 0) - new Date(a._createdAt || 0))
+      .slice(0, n);
+  });
+
+  // Group US products into category rows for the homepage feed
+  // Returns: [{ name, slug, totalCount, products: [up to 8, newest first] }] sorted by totalCount desc
+  // Skips categories with fewer than 2 products
+  eleventyConfig.addFilter('categoryRows', (products) => {
+    const groups = {};
+    (products || []).forEach((p) => {
+      (p.categories || []).forEach((cat) => {
+        if (!groups[cat]) groups[cat] = { name: cat, products: [] };
+        groups[cat].products.push(p);
+      });
+    });
+    return Object.values(groups)
+      .filter((g) => g.products.length >= 2)
+      .sort((a, b) => b.products.length - a.products.length)
+      .map((g) => {
+        const slug = g.name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const sorted = [...g.products].sort(
+          (a, b) => new Date(b._createdAt || 0) - new Date(a._createdAt || 0),
+        );
+        return { name: g.name, slug, totalCount: g.products.length, products: sorted.slice(0, 8) };
+      });
+  });
+
   // ── Static assets ─────────────────────────────────────────────────────────
   eleventyConfig.addPassthroughCopy('images');
   eleventyConfig.addPassthroughCopy('assets');
   eleventyConfig.addPassthroughCopy('_redirects');
+  eleventyConfig.addPassthroughCopy('manifest.json');
 
   // ── Collection: flat list of categories (drives category-card grid) ───────
   eleventyConfig.addCollection('customCategories', async function () {

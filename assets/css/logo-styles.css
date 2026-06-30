@@ -1,3 +1,37 @@
+/* ── Filter chips ───────────────────────────────────────────────────────────── */
+.filter-chip {
+  background-color: rgb(241 245 249);       /* slate-100 */
+  color: rgb(51 65 85);                      /* slate-700 */
+  border: 1px solid rgb(226 232 240);        /* slate-200 */
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.filter-chip:hover:not(.chip-active) {
+  background-color: rgb(255 237 213);        /* orange-100 */
+  color: rgb(234 88 12);                     /* orange-600 */
+}
+.filter-chip.chip-active {
+  background-color: rgb(249 115 22);         /* orange-500 */
+  color: #fff;
+  border-color: rgb(249 115 22);
+}
+
+html.dark .filter-chip {
+  background-color: rgb(30 41 59);           /* slate-800 */
+  color: rgb(203 213 225);                   /* slate-200 */
+  border-color: rgb(51 65 85);               /* slate-700 */
+}
+html.dark .filter-chip:hover:not(.chip-active) {
+  background-color: rgba(124 45 18 / 0.3);   /* orange-900/30 */
+  color: rgb(251 146 60);                    /* orange-400 */
+}
+html.dark .filter-chip.chip-active {
+  background-color: rgb(249 115 22);
+  color: #fff;
+  border-color: rgb(249 115 22);
+}
+
+/* ── Animated logo / radar ──────────────────────────────────────────────────── */
 /* Copy all the animation and layout CSS from your original file here */
 .icon-svg { 
     display: inline-block;
@@ -20,3 +54,115 @@
 .ping-ripple { fill: none; stroke: #FF6B35; stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: rippleOut 2s ease-out infinite; }
 .ping-ripple-2 { animation-delay: 1s; }
 @keyframes rippleOut { 0% { transform: scale(0.5); opacity: 0.9; } 100% { transform: scale(3.5); opacity: 0; } }
+
+/* ── Homepage feed — section headers & "See all" links ─────────────────────── */
+.section-row-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+html.dark .section-row-header {
+  color: #f1f5f9;
+}
+a.section-row-header:hover {
+  color: #f97316;
+}
+
+.see-all-link {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #FF6B35;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.see-all-link:hover {
+  opacity: 0.75;
+}
+
+/* ── Horizontal product rows ─────────────────────────────────────────────────── */
+.product-row-wrapper {
+  position: relative;
+}
+
+/* Fade-to-background gradient on right edge — hints at more content */
+.product-row-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(to right, transparent, #ffffff);
+}
+html.dark .product-row-wrapper::after {
+  background: linear-gradient(to right, transparent, #0f172a);
+}
+
+.product-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 12px;
+}
+.product-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Pick-of-week carousel navigation buttons ──────────────────────────────── */
+.pick-nav-btn {
+  position: absolute;
+  top: 40%;
+  transform: translateY(-50%);
+  z-index: 3;
+  background: rgba(255,255,255,0.92);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: background 0.15s, box-shadow 0.15s;
+  color: #0D2545;
+}
+.pick-nav-btn:hover {
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+.pick-nav-prev { left: 8px; }
+.pick-nav-next { right: 8px; }
+
+/* Fixed card width so rows stay uniform — 2 visible on mobile, more on wider screens */
+.product-row > .product-card {
+  flex: 0 0 calc(50vw - 1.5rem);
+  min-width: 155px;
+  max-width: 210px;
+}
+@media (min-width: 640px) {
+  .product-row > .product-card {
+    flex: 0 0 200px;
+    max-width: 200px;
+  }
+}
+@media (min-width: 1024px) {
+  .product-row > .product-card {
+    flex: 0 0 220px;
+    max-width: 220px;
+  }
+}

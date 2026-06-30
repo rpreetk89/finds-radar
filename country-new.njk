@@ -1,0 +1,54 @@
+---
+pagination:
+  data: collections.allCountryData
+  size: 1
+  alias: country
+permalink: "/{{ country.code }}/new/index.html"
+layout: base.njk
+eleventyComputed:
+  title: "New This Week — FindsRadar {{ country.name }}"
+  metaDescription: "Latest finds added to FindsRadar for {{ country.name }}, sorted by newest first."
+---
+
+{% set countryProducts = products.products | filterByCountry(country.code) | newestFirst %}
+
+{% if country.isDefault %}
+  {% set categoryBaseUrl = '/categories/' %}
+{% else %}
+  {% set categoryBaseUrl = '/' + country.code + '/categories/' %}
+{% endif %}
+
+<section class="max-w-7xl mx-auto px-4 pt-8 pb-16">
+
+  <div class="mb-6 flex items-center gap-3">
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+      <img src="https://flagcdn.com/w20/{{ country.code }}.png"
+           srcset="https://flagcdn.com/w40/{{ country.code }}.png 2x"
+           alt="{{ country.name }}"
+           class="w-5 h-3.5 object-cover rounded-sm">
+      <span class="text-orange-500">✦</span> New this week
+    </h1>
+    <span class="text-sm text-slate-400 dark:text-slate-500">{{ countryProducts | length }} finds</span>
+  </div>
+
+  <div class="max-w-sm mb-6">
+    <input
+      id="grid-search"
+      type="text"
+      placeholder="Search new finds..."
+      autocomplete="off"
+      class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-4 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+    >
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    {% for product in countryProducts %}
+      {% include "product-card.njk" %}
+    {% else %}
+      <p class="col-span-5 text-slate-500 dark:text-slate-400 py-12 text-center">No products found.</p>
+    {% endfor %}
+  </div>
+
+  <div id="filter-empty" class="hidden text-center py-10 px-4"></div>
+
+</section>

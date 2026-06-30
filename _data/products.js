@@ -4,6 +4,7 @@ module.exports = async function () {
   const all = await client.fetch(`
     *[_type == "product" && published != false] | order(name asc) {
       _id,
+      _createdAt,
       name,
       description,
       price,

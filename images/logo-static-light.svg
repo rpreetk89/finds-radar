@@ -1,0 +1,22 @@
+<svg width="820" height="240" viewBox="0 0 820 240" xmlns="http://www.w3.org/2000/svg">
+  <rect width="820" height="240" rx="20" fill="#ffffff"/>
+  <g transform="translate(100,120)">
+    <circle cx="0" cy="0" r="62" stroke="#0D2545" stroke-width="5" fill="none"/>
+    <circle cx="0" cy="0" r="40" stroke="#0D2545" stroke-width="2" fill="none" opacity="0.25"/>
+    <line x1="0" y1="-78" x2="0" y2="-50" stroke="#0D2545" stroke-width="5" stroke-linecap="round"/>
+    <line x1="0" y1=" 50" x2="0" y2=" 78" stroke="#0D2545" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-78" y1="0" x2="-50" y2="0" stroke="#0D2545" stroke-width="5" stroke-linecap="round"/>
+    <line x1=" 50" y1="0" x2=" 78" y2="0" stroke="#0D2545" stroke-width="5" stroke-linecap="round"/>
+    <path d="M0,-30 L5,-5 L0,0 L-5,-5 Z"  fill="#FF6B35"/>
+    <path d="M30,0 L5,5 L0,0 L5,-5 Z"    fill="#FF6B35"/>
+    <path d="M0,30 L-5,5 L0,0 L5,5 Z"    fill="#FF6B35"/>
+    <path d="M-30,0 L-5,-5 L0,0 L-5,5 Z" fill="#FF6B35"/>
+    <circle cx="0" cy="0" r="7" fill="#0D2545"/>
+    <circle cx="0" cy="0" r="3.5" fill="#FF6B35"/>
+  </g>
+  <text y="142" font-family="-apple-system,'Helvetica Neue',Arial,sans-serif" font-weight="700" font-size="72" letter-spacing="-1.5">
+    <tspan x="220" fill="#0D2545">Finds</tspan><tspan fill="#FF6B35">Radar</tspan>
+  </text>
+  <line x1="222" y1="160" x2="700" y2="160" stroke="#E8EDF3" stroke-width="1"/>
+  <text x="224" y="184" font-family="-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13" letter-spacing="4" fill="#8A9BB0">HANDPICKED FOR YOU</text>
+</svg>

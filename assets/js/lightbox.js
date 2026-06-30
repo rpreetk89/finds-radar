@@ -62,6 +62,12 @@
     }
   });
 
+  window.openModalById = function (id) {
+    const products = window.__FINDSRADAR_PRODUCTS || [];
+    const product = products.find((p) => p._id === id);
+    if (product) openModal(product);
+  };
+
   // Expose API
   window.openModal = openModal;
   window.closeModal = closeModal;

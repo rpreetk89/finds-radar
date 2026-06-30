@@ -35,6 +35,55 @@ export default defineType({
       type: 'array',
       of: [{type: 'reference', to: [{type: 'category'}]}],
     }),
+
+    // ── Automation fields (read-only in Studio) ─────────────────────────────
+    defineField({
+      name: 'link_status',
+      title: 'Link Status',
+      type: 'string',
+      readOnly: true,
+      description: 'Set automatically by the daily link checker.',
+      options: {
+        list: [
+          {title: '✅ OK', value: 'ok'},
+          {title: '❌ Unavailable', value: 'broken'},
+          {title: '⚠️ Check error (timeout / bot block)', value: 'error'},
+        ],
+      },
+    }),
+    defineField({
+      name: 'link_checked_at',
+      title: 'Link Last Checked',
+      type: 'datetime',
+      readOnly: true,
+      description: 'Timestamp of the last automated content check.',
+    }),
+    defineField({
+      name: 'auto_unpublished',
+      title: 'Auto-unpublished',
+      type: 'boolean',
+      readOnly: true,
+      description: 'True when the link checker unpublished this product automatically.',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'unpublish_reason',
+      title: 'Unpublish Reason',
+      type: 'string',
+      readOnly: true,
+      description: 'The signal that triggered auto-unpublish.',
+    }),
+
+    // ── Manual override ─────────────────────────────────────────────────────
+    defineField({
+      name: 'skip_check',
+      title: 'Skip automated checks',
+      type: 'boolean',
+      description:
+        'Enable to exclude this product from the daily link checker. Use when the product is valid but triggers a false positive.',
+      initialValue: false,
+    }),
+
     defineField({
       name: 'media',
       title: 'Media',
