@@ -1,0 +1,23 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Navy rounded-square background -->
+  <rect width="512" height="512" rx="100" fill="#0D2545"/>
+  <g transform="translate(256,256)">
+    <!-- Outer ring: stroke-width 22 (was 14) for bold visibility at 16–32px favicon sizes -->
+    <circle cx="0" cy="0" r="168" stroke="#ffffff" stroke-width="22" fill="none"/>
+    <!-- Inner ring: kept thin so it recedes at small sizes -->
+    <circle cx="0" cy="0" r="108" stroke="#ffffff" stroke-width="5" fill="none" opacity="0.2"/>
+    <!-- Crosshair tick lines: stroke-width 22 matches ring -->
+    <line x1="0" y1="-210" x2="0" y2="-134" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+    <line x1="0" y1=" 134" x2="0" y2=" 210" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+    <line x1="-210" y1="0" x2="-134" y2="0" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+    <line x1=" 134" y1="0" x2=" 210" y2="0" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+    <!-- 4-point spark: wider arms for presence at small sizes -->
+    <path d="M0,-80 L18,-14 L0,0 L-18,-14 Z"  fill="#FF6B35"/>
+    <path d="M80,0 L18,14 L0,0 L18,-14 Z"     fill="#FF6B35"/>
+    <path d="M0,80 L-18,14 L0,0 L18,14 Z"     fill="#FF6B35"/>
+    <path d="M-80,0 L-18,-14 L0,0 L-18,14 Z"  fill="#FF6B35"/>
+    <!-- Centre dot -->
+    <circle cx="0" cy="0" r="24" fill="#ffffff"/>
+    <circle cx="0" cy="0" r="12" fill="#FF6B35"/>
+  </g>
+</svg>

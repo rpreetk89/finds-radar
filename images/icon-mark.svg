@@ -1,0 +1,32 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .po{animation:pb 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
+    .pi{animation:pb 2.4s ease-in-out infinite reverse;transform-box:fill-box;transform-origin:center;}
+    @keyframes pb{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+    .bk{animation:blink 2.4s ease-in-out infinite;}
+    @keyframes blink{0%,35%,65%,100%{opacity:1}50%{opacity:0.15}}
+  </style>
+  <!-- Navy rounded-square background -->
+  <rect width="512" height="512" rx="100" fill="#0D2545"/>
+  <g transform="translate(256,256)">
+    <!-- Outer ring -->
+    <circle cx="0" cy="0" r="168" stroke="#ffffff" stroke-width="14" fill="none"/>
+    <!-- Inner ring -->
+    <circle cx="0" cy="0" r="108" stroke="#ffffff" stroke-width="6" fill="none" opacity="0.25"/>
+    <!-- Crosshair ticks -->
+    <line x1="0" y1="-210" x2="0" y2="-134" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+    <line x1="0" y1=" 134" x2="0" y2=" 210" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+    <line x1="-210" y1="0" x2="-134" y2="0" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+    <line x1=" 134" y1="0" x2=" 210" y2="0" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+    <!-- 4-point spark -->
+    <g class="po">
+      <path d="M0,-80 L14,-14 L0,0 L-14,-14 Z"  fill="#FF6B35"/>
+      <path d="M80,0 L14,14 L0,0 L14,-14 Z"     fill="#FF6B35"/>
+      <path d="M0,80 L-14,14 L0,0 L14,14 Z"     fill="#FF6B35"/>
+      <path d="M-80,0 L-14,-14 L0,0 L-14,14 Z"  fill="#FF6B35"/>
+    </g>
+    <!-- Centre dot -->
+    <circle cx="0" cy="0" r="20" fill="#ffffff"/>
+    <circle cx="0" cy="0" r="10" fill="#FF6B35" class="bk"/>
+  </g>
+</svg>

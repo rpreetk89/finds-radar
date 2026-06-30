@@ -4,39 +4,59 @@
 {% for _s in _segments %}
   {% if _s and not _firstSeg %}{% set _firstSeg = _s %}{% endif %}
 {% endfor %}
-{# If first segment maps to a country name it IS a country code → home = /{code}/ #}
-{% set _countryLabel = _firstSeg | codeToCountry(countries) %}
-{% set homeUrl = ('/' + _firstSeg + '/') if (_countryLabel != _firstSeg) else '/' %}
 
-<nav class="max-w-7xl mx-auto px-4 pt-4 pb-2 text-sm text-slate-500 dark:text-slate-400">
+{# If first segment is a country code → home = /{code}/, otherwise home = / #}
+{% set _countryLabel = _firstSeg | codeToCountry(countries) %}
+{% set _isCountryPath = (_countryLabel != _firstSeg) %}
+{% set homeUrl = ('/' + _firstSeg + '/') if _isCountryPath else '/' %}
+
+<nav class="px-4 sm:px-6 lg:px-8 pt-4 pb-2 text-sm text-slate-500 dark:text-slate-400">
   <ol class="flex items-center justify-start flex-wrap gap-y-1 gap-x-0">
     <li>
       <a href="{{ homeUrl }}"
-         class="{% if page.url == '/' or page.url == homeUrl %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-orange-500 dark:hover:text-orange-400{% endif %}">
+         class="{% if page.url == homeUrl %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-orange-500 dark:hover:text-orange-400{% endif %}">
         Home
       </a>
     </li>
 
-    {% if page.url != "/" %}
+    {% if page.url != homeUrl %}
       {% set currentPath = "" %}
       {% for segment in _segments %}
         {% if segment != "" %}
           {% set currentPath = currentPath + "/" + segment %}
-          {% set label = segment | codeToCountry(countries) %}
-          {% if label == segment %}
-            {% set label = segment | replace("-", " ") %}
-          {% endif %}
-          <li class="flex items-center">
-            <span class="mx-1.5 text-slate-300 dark:text-slate-600">/</span>
-            {% if (currentPath + "/") == page.url %}
-              <span class="capitalize font-semibold text-slate-700 dark:text-slate-200">{{ label }}</span>
-            {% else %}
-              <a href="{{ currentPath }}/"
-                 class="capitalize hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
-                {{ label }}
-              </a>
+
+          {# Skip the country code segment — it's already represented by the Home link #}
+          {% if _isCountryPath and segment == _firstSeg %}
+            {# intentionally skipped #}
+          {% else %}
+            {% set label = segment | codeToCountry(countries) %}
+            {% if label == segment %}
+              {# Not a country code — apply human-readable overrides then fall back to slug-to-words #}
+              {% if segment == 'new' %}
+                {% set label = 'New this week' %}
+              {% elif segment == 'wishlist' %}
+                {% set label = 'Saved finds' %}
+              {% elif segment == 'categories' %}
+                {% set label = 'Categories' %}
+              {% elif segment == 'marketplaces' %}
+                {% set label = 'Marketplaces' %}
+              {% else %}
+                {% set label = segment | replace("-", " ") %}
+              {% endif %}
             {% endif %}
-          </li>
+
+            <li class="flex items-center">
+              <span class="mx-1.5 text-slate-300 dark:text-slate-600">/</span>
+              {% if (currentPath + "/") == page.url %}
+                <span class="capitalize font-semibold text-slate-700 dark:text-slate-200">{{ label }}</span>
+              {% else %}
+                <a href="{{ currentPath }}/"
+                   class="capitalize hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+                  {{ label }}
+                </a>
+              {% endif %}
+            </li>
+          {% endif %}
         {% endif %}
       {% endfor %}
     {% endif %}

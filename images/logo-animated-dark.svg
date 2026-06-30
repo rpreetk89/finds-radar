@@ -1,0 +1,28 @@
+<svg width="240" height="48" viewBox="0 0 240 48" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .po{animation:pb 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
+    @keyframes pb{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+    .bk{animation:blink 2.4s ease-in-out infinite;}
+    @keyframes blink{0%,35%,65%,100%{opacity:1}50%{opacity:0.15}}
+  </style>
+  <rect width="240" height="48" fill="#0f172a"/>
+  <g transform="translate(24,24)">
+    <circle cx="0" cy="0" r="18" stroke="#ffffff" stroke-width="2" fill="none"/>
+    <circle cx="0" cy="0" r="11" stroke="#ffffff" stroke-width="0.8" fill="none" opacity="0.25"/>
+    <line x1="0" y1="-24" x2="0" y2="-14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="14" x2="0" y2="24" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-24" y1="0" x2="-14" y2="0" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <line x1="14" y1="0" x2="24" y2="0" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <g class="po">
+      <path d="M0,-10 L1.5,-2 L0,0 L-1.5,-2 Z" fill="#FF6B35"/>
+      <path d="M10,0 L2,1.5 L0,0 L2,-1.5 Z"   fill="#FF6B35"/>
+      <path d="M0,10 L-1.5,2 L0,0 L1.5,2 Z"   fill="#FF6B35"/>
+      <path d="M-10,0 L-2,-1.5 L0,0 L-2,1.5 Z" fill="#FF6B35"/>
+    </g>
+    <circle cx="0" cy="0" r="2.2" fill="#ffffff"/>
+    <circle cx="0" cy="0" r="1.1" fill="#FF6B35" class="bk"/>
+  </g>
+  <text y="32" font-family="-apple-system,'Helvetica Neue',Arial,sans-serif" font-weight="700" font-size="30" letter-spacing="-0.5">
+    <tspan x="54" fill="#ffffff">Finds</tspan><tspan fill="#FF6B35">Radar</tspan>
+  </text>
+</svg>

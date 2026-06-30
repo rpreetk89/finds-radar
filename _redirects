@@ -1,2 +1,6 @@
 # Redirect bare /cms to the production workspace
 /cms  /cms/prod/  301
+
+# No global home — root and /new/ go to the default country (US)
+/     /us/       302
+/new/ /us/new/   302
