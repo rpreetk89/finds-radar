@@ -286,10 +286,22 @@ module.exports = function (eleventyConfig) {
     return Object.values(groups);
   });
 
-  // ── Dev server: redirect /cms to Sanity Studio dev server (port 3333) ───
+  // ── Dev server ────────────────────────────────────────────────────────────
   eleventyConfig.setServerOptions({
+    port: 8081,
     middleware: [
+      // Mirror the _redirects rules locally
       function (req, res, next) {
+        if (req.url === '/' || req.url === '/index.html') {
+          res.writeHead(302, { Location: '/us/' });
+          res.end();
+          return;
+        }
+        if (req.url === '/new/' || req.url === '/new/index.html') {
+          res.writeHead(302, { Location: '/us/new/' });
+          res.end();
+          return;
+        }
         if (req.url.startsWith('/cms')) {
           res.writeHead(302, { Location: 'http://localhost:3333' + req.url });
           res.end();

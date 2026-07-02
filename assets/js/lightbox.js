@@ -62,6 +62,16 @@
     }
   });
 
+  // Click outside the modal card (on the backdrop) to close
+  document.addEventListener('DOMContentLoaded', () => {
+    const lb = document.getElementById('lightbox');
+    if (lb) {
+      lb.addEventListener('click', (e) => {
+        if (e.target === lb) closeModal();
+      });
+    }
+  });
+
   window.openModalById = function (id) {
     const products = window.__FINDSRADAR_PRODUCTS || [];
     const product = products.find((p) => p._id === id);

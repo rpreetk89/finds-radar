@@ -1,4 +1,5 @@
-const client = require('../lib/sanityClient');
+// DATA-SOURCE: sanity
+const client = require('../lib/sanityClient')
 
 module.exports = async function () {
   const all = await client.fetch(`
@@ -8,14 +9,13 @@ module.exports = async function () {
       "slug": slug.current,
       "country": country->{ name, code, flag }
     }
-  `);
-  // Deduplicate by slug
-  const seen = new Set();
+  `)
+  const seen = new Set()
   return all
-    .map((mp) => ({ ...mp, slug: (mp.slug || '').toLowerCase() }))
+    .map((mp) => ({...mp, slug: (mp.slug || '').toLowerCase()}))
     .filter((mp) => {
-      if (!mp.slug || seen.has(mp.slug)) return false;
-      seen.add(mp.slug);
-      return true;
-    });
-};
+      if (!mp.slug || seen.has(mp.slug)) return false
+      seen.add(mp.slug)
+      return true
+    })
+}

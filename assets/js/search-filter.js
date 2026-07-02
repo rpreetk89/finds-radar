@@ -32,8 +32,7 @@
   function setHeartState(btn, wishlisted) {
     var icon = btn.querySelector('.heart-icon');
     if (!icon) return;
-    icon.setAttribute('fill', wishlisted ? 'currentColor' : 'none');
-    icon.style.color = wishlisted ? '#ef4444' : '';
+    icon.classList.toggle('is-active', wishlisted);
     btn.setAttribute('aria-label', wishlisted ? 'Remove from wishlist' : 'Save to wishlist');
   }
 
@@ -60,6 +59,27 @@
 
   function escHtml(str) {
     return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ── Category navigation ─────────────────────────────────────────────────────
+  // Mirrors the URL contract from .eleventy.js categoryPages: default country
+  // has no code prefix, non-default countries are prefixed with /{code}/.
+
+  function getCurrentCountryCode() {
+    var seg = window.location.pathname.split('/').filter(Boolean)[0] || '';
+    return /^[a-z]{2}$/.test(seg) ? seg : null;
+  }
+
+  function isDefaultCountry(code) {
+    if (!code) return true;
+    var opt = document.querySelector('.country-option[data-country-code="' + code + '"]');
+    return opt ? opt.dataset.countryDefault === 'true' : true;
+  }
+
+  function categoryUrl(catName) {
+    var code = getCurrentCountryCode();
+    var slug = catName.toLowerCase();
+    return isDefaultCountry(code) ? '/categories/' + slug + '/' : '/' + code + '/categories/' + slug + '/';
   }
 
   function clearSearch() {
@@ -121,7 +141,7 @@
     if (s.cats.length) {
       html += '<div class="px-4 pt-3 pb-1 text-xs font-semibold tracking-wider text-slate-400 dark:text-slate-500 uppercase">Categories</div>';
       s.cats.forEach(function (cat) {
-        html += '<button type="button" class="search-suggestion w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-700 flex items-center gap-2.5 transition-colors" data-val="' + escHtml(cat) + '">'
+        html += '<button type="button" class="search-suggestion w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-orange-50 dark:hover:bg-slate-700 flex items-center gap-2.5 transition-colors" data-type="category" data-val="' + escHtml(cat) + '">'
           + '<svg class="w-3.5 h-3.5 shrink-0 text-orange-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>'
           + escHtml(cat)
           + '</button>';
@@ -149,6 +169,10 @@
     dropdown.querySelectorAll('.search-suggestion').forEach(function (btn) {
       btn.addEventListener('mousedown', function (e) {
         e.preventDefault(); // keep input focused; blur fires after mousedown otherwise
+        if (btn.dataset.type === 'category') {
+          window.location.href = categoryUrl(btn.dataset.val);
+          return;
+        }
         var input = document.getElementById('grid-search');
         if (input) {
           input.value = btn.dataset.val;

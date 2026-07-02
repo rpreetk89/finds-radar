@@ -14,7 +14,7 @@
   <ol class="flex items-center justify-start flex-wrap gap-y-1 gap-x-0">
     <li>
       <a href="{{ homeUrl }}"
-         class="{% if page.url == homeUrl %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-orange-500 dark:hover:text-orange-400{% endif %}">
+         class="{% if page.url == homeUrl %}font-bold text-slate-800 dark:text-slate-100{% else %}hover:text-brand dark:hover:text-brand-hover{% endif %}">
         Home
       </a>
     </li>
@@ -51,7 +51,7 @@
                 <span class="capitalize font-semibold text-slate-700 dark:text-slate-200">{{ label }}</span>
               {% else %}
                 <a href="{{ currentPath }}/"
-                   class="capitalize hover:text-orange-500 dark:hover:text-orange-400 transition-colors">
+                   class="capitalize hover:text-brand dark:hover:text-brand-hover transition-colors">
                   {{ label }}
                 </a>
               {% endif %}

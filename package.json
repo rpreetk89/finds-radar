@@ -4,7 +4,8 @@
   "description": "��#\u0000 \u0000f\u0000i\u0000n\u0000d\u0000s\u0000-\u0000r\u0000a\u0000d\u0000a\u0000r\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npx @11ty/eleventy --serve\" \"npm run dev --prefix studio\"",
+    "dev": "concurrently --names \"site,studio\" \"npx @11ty/eleventy --serve\" \"npm run dev --prefix studio\"",
+    "studio": "npm run dev --prefix studio",
     "seed": "node seed-sanity.js",
     "cleanup": "node cleanup-sanity.js",
     "build": "npm install --prefix studio && npx @11ty/eleventy && npm run build --prefix studio && npx mkdirp _site/cms && npx ncp studio/dist _site/cms && node -e \"const fs=require('fs'); const f='_site/cms/index.html'; const html=fs.readFileSync(f,'utf8').replace(/\\/static\\//g,'/cms/static/'); fs.writeFileSync(f,html); fs.mkdirSync('_site/cms/dev',{recursive:true}); fs.mkdirSync('_site/cms/prod',{recursive:true}); fs.writeFileSync('_site/cms/dev/index.html',html); fs.writeFileSync('_site/cms/prod/index.html',html);\""

@@ -2,11 +2,8 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16 gap-4">
 
-      <a href="/" id="nav-home-link" class="flex items-center shrink-0" aria-label="FindsRadar home">
-        <img src="/images/logo-animated-light.svg" alt="FindsRadar"
-             class="block dark:hidden h-9 w-auto" loading="eager" fetchpriority="high">
-        <img src="/images/logo-animated-dark.svg"  alt="FindsRadar"
-             class="hidden dark:block h-9 w-auto" loading="eager" fetchpriority="high">
+      <a href="/" id="nav-home-link" class="flex items-center shrink-0 font-bold text-lg tracking-tight text-slate-900 dark:text-white" aria-label="FindsRadar home">
+        Finds<span class="text-brand">Radar</span>
       </a>
 
       <div class="flex items-center gap-2 shrink-0">
@@ -76,7 +73,7 @@
 
       if (isActive) {
         matched = true;
-        el.classList.add('bg-orange-50', 'dark:bg-orange-900/20', 'font-semibold', 'text-orange-600', 'dark:text-orange-400');
+        el.classList.add('bg-orange-50', 'dark:bg-orange-900/20', 'font-semibold', 'text-brand-hover', 'dark:text-brand-hover');
         const name = el.querySelector('.country-name').textContent.trim();
         const flagImg = document.getElementById('current-flag-img');
         const fallback = document.getElementById('current-flag-fallback');

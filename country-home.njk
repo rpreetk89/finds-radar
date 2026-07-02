@@ -23,13 +23,13 @@ eleventyComputed:
 {% set countryProducts = products.products | filterByCountry(country.code) %}
 
 {# ── Hero ─────────────────────────────────────────────────────────────────── #}
-<section class="max-w-3xl mx-auto px-4 pt-10 pb-6 text-center">
+<section class="max-w-3xl mx-auto px-4 pt-4 pb-3 text-center">
 
-  <div class="mb-5 flex justify-center">
+  <div class="mb-2 flex justify-center">
     {% include "hero-logo.njk" %}
   </div>
 
-  <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6 flex items-center justify-center gap-2 flex-wrap">
+  <h1 class="text-base md:text-lg font-semibold text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-center gap-2 flex-wrap">
     <img src="https://flagcdn.com/w20/{{ country.code }}.png"
          srcset="https://flagcdn.com/w40/{{ country.code }}.png 2x"
          alt="{{ country.name }}"
@@ -44,7 +44,7 @@ eleventyComputed:
       type="text"
       placeholder="Search finds..."
       autocomplete="off"
-      class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+      class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-5 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand transition"
     >
   </div>
 
@@ -71,12 +71,12 @@ eleventyComputed:
 
 {# ── Pick of the week ─────────────────────────────────────────────────────── #}
 {# DATA-SOURCE: sanity | featured flag + _createdAt #}
-{% set pickProducts = countryProducts | topFeatured(6) %}
+{% set pickProducts = countryProducts | topFeatured(10) %}
 {% if pickProducts | length %}
-<section class="mb-10 py-6" style="background: linear-gradient(135deg, #1A3A6B 0%, #0D2545 100%);">
+<section class="mb-10 py-6" style="background: linear-gradient(135deg, var(--color-banner-from) 0%, var(--color-banner-to) 100%);">
   <div class="px-4 mb-3 flex items-center gap-3">
-    <h2 class="section-row-header" style="color:#ffffff;">
-      <span style="color:#FF6B35;">✦</span>&nbsp;Pick of the week
+    <h2 class="section-row-header" style="color:var(--color-banner-text);">
+      <span style="color:var(--color-brand);">✦</span>&nbsp;Top 10 of the week
     </h2>
   </div>
   <div class="pick-carousel-wrapper product-row-wrapper">
@@ -97,9 +97,9 @@ eleventyComputed:
 <section class="mb-10">
   <div class="px-4 mb-3 flex items-center gap-3">
     <a href="{{ newPageUrl }}" class="section-row-header">
-      <span class="text-orange-500">✦</span>&nbsp;New this week
+      <span class="text-brand">✦</span>&nbsp;New this week
     </a>
-    <span class="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full font-bold">{{ thisWeekProducts | length }}</span>
+    <span class="text-xs bg-brand text-white px-2 py-0.5 rounded-full font-bold">{{ thisWeekProducts | length }}</span>
     <a href="{{ newPageUrl }}" class="see-all-link ml-auto">See all →</a>
   </div>
   <div class="product-row-wrapper">
@@ -136,29 +136,56 @@ eleventyComputed:
 (function () {
   var carousel = document.getElementById('pick-carousel');
   if (!carousel) return;
-  var current = 0;
+
+  // Clone all cards and append — gives us a seamless wrap-around
+  var origCards = Array.from(carousel.querySelectorAll('.product-card'));
+  var N = origCards.length;
+  if (N === 0) return;
+  origCards.forEach(function (c) { carousel.appendChild(c.cloneNode(true)); });
+
+  var current = 0; // logical index 0..N-1
   var timer;
 
-  function getCards() { return Array.from(carousel.querySelectorAll('.product-card')); }
+  function getPad() { return parseInt(getComputedStyle(carousel).paddingLeft) || 16; }
+  function cards() { return carousel.querySelectorAll('.product-card'); }
 
-  function scrollToCard(idx) {
-    var cards = getCards();
-    if (!cards.length) return;
-    var n = cards.length;
-    if (idx >= n) { carousel.scrollLeft = 0; current = 0; return; }
-    current = ((idx % n) + n) % n;
-    var pad = parseInt(getComputedStyle(carousel).paddingLeft) || 16;
-    carousel.scrollTo({ left: cards[current].offsetLeft - pad, behavior: 'smooth' });
+  function scrollTo(domIdx, instant) {
+    var c = cards();
+    var left = c[domIdx].offsetLeft - getPad();
+    if (instant) {
+      carousel.style.scrollBehavior = 'auto'; // override CSS scroll-behavior: smooth
+      carousel.scrollLeft = left;
+      // eslint-disable-next-line no-unused-expressions
+      carousel.scrollLeft; // force reflow so the override takes effect
+      carousel.style.scrollBehavior = '';
+    } else {
+      carousel.scrollTo({ left: left, behavior: 'smooth' });
+    }
+  }
+
+  function advance() {
+    if (current < N - 1) {
+      current++;
+      scrollTo(current, false);
+    } else {
+      // Scroll smoothly into clone[0] (domIdx = N), then silently snap back to real[0]
+      scrollTo(N, false);
+      setTimeout(function () {
+        scrollTo(0, true);
+        current = 0;
+      }, 500);
+    }
   }
 
   function startAuto() {
     clearInterval(timer);
-    timer = setInterval(function () { scrollToCard(current + 1); }, 4000);
+    timer = setInterval(advance, 3500);
   }
 
   window.pickNav = function (dir) {
     clearInterval(timer);
-    scrollToCard(current + dir);
+    current = ((current + dir) % N + N) % N;
+    scrollTo(current, false);
     startAuto();
   };
 
@@ -172,8 +199,8 @@ eleventyComputed:
   }, { passive: true });
   carousel.addEventListener('touchend', function (e) {
     var dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 50) scrollToCard(current + (dx < 0 ? 1 : -1));
-    startAuto();
+    if (Math.abs(dx) > 50) window.pickNav(dx < 0 ? 1 : -1);
+    else startAuto();
   }, { passive: true });
 
   startAuto();
