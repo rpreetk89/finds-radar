@@ -19,7 +19,17 @@ eleventyComputed:
     {{ page.countryName }}
   </a>
 
-  <h1 class="text-3xl font-bold mb-2 capitalize">{{ page.marketplace.name }}</h1>
+  <div class="flex items-center gap-3 mb-2">
+    {% if page.marketplace.domain %}
+      <img
+        src="https://www.google.com/s2/favicons?domain={{ page.marketplace.domain }}&sz=128"
+        alt="{{ page.marketplace.name }}"
+        class="h-8 w-auto rounded"
+        onerror="this.style.display='none'"
+      >
+    {% endif %}
+    <h1 class="text-3xl font-bold capitalize">{{ page.marketplace.name }}</h1>
+  </div>
   <p class="text-slate-500 dark:text-slate-400 mb-8">Browse categories on {{ page.marketplace.name }}</p>
 
   {% set categoryBaseUrl = '/' + page.countryCode + '/categories/' %}

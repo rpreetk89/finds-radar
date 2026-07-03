@@ -57,9 +57,19 @@ eleventyComputed:
       {% endfor %}
       {% if mpCount > 0 %}
         <button
-          class="filter-chip px-4 py-1.5 rounded-full text-sm font-medium"
+          class="filter-chip px-3 py-1.5 rounded-full text-sm font-medium flex items-center gap-2"
           data-filter-mp="{{ mp.slug }}"
-        >{{ mp.name }}</button>
+        >
+          {% if mp.domain %}
+            <img
+              src="https://www.google.com/s2/favicons?domain={{ mp.domain }}&sz=128"
+              alt=""
+              class="h-5 w-5 rounded-sm object-contain flex-shrink-0"
+              onerror="this.style.display='none'"
+            >
+          {% endif %}
+          {{ mp.name }}
+        </button>
       {% endif %}
     {% endfor %}
   </div>
@@ -69,11 +79,18 @@ eleventyComputed:
 {# ── Global search empty state ───────────────────────────────────────────── #}
 <div id="filter-empty" class="hidden text-center py-10 px-4"></div>
 
+{# ── Flat search results (shown only when search is active) ───────────────── #}
+<section id="search-results-section" class="hidden mb-10 px-4">
+  <div class="product-row-wrapper">
+    <div class="product-row" id="search-results-row"></div>
+  </div>
+</section>
+
 {# ── Pick of the week ─────────────────────────────────────────────────────── #}
 {# DATA-SOURCE: sanity | featured flag + _createdAt #}
 {% set pickProducts = countryProducts | topFeatured(10) %}
 {% if pickProducts | length %}
-<section class="mb-10 py-6" style="background: linear-gradient(135deg, var(--color-banner-from) 0%, var(--color-banner-to) 100%);">
+<section data-section="top10" class="mb-10 py-6" style="background: linear-gradient(135deg, var(--color-banner-from) 0%, var(--color-banner-to) 100%);">
   <div class="px-4 mb-3 flex items-center gap-3">
     <h2 class="section-row-header" style="color:var(--color-banner-text);">
       <span style="color:var(--color-brand);">✦</span>&nbsp;Top 10 of the week
@@ -94,7 +111,7 @@ eleventyComputed:
 {# ── New this week — only appears if products were actually added in the last 7 days #}
 {% set thisWeekProducts = countryProducts | addedWithinDays(7) | newestFirst | limit(8) %}
 {% if thisWeekProducts | length %}
-<section class="mb-10">
+<section data-section="newthisweek" class="mb-10">
   <div class="px-4 mb-3 flex items-center gap-3">
     <a href="{{ newPageUrl }}" class="section-row-header">
       <span class="text-brand">✦</span>&nbsp;New this week
@@ -141,7 +158,11 @@ eleventyComputed:
   var origCards = Array.from(carousel.querySelectorAll('.product-card'));
   var N = origCards.length;
   if (N === 0) return;
-  origCards.forEach(function (c) { carousel.appendChild(c.cloneNode(true)); });
+  origCards.forEach(function (c) {
+    var clone = c.cloneNode(true);
+    clone.setAttribute('data-carousel-clone', 'true');
+    carousel.appendChild(clone);
+  });
 
   var current = 0; // logical index 0..N-1
   var timer;

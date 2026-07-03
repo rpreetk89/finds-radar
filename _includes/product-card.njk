@@ -45,11 +45,14 @@
   {# ── Card body ── #}
   <div class="p-3 flex flex-col gap-1.5 flex-1">
 
-    {# Marketplace source badge — DATA-SOURCE: sanity #}
-    {% if product.marketplace %}
-      <span class="text-xs text-slate-400 dark:text-slate-500 font-medium truncate">
-        {{ product.marketplace.name }}{% if product.country %} · {{ product.country.name }}{% endif %}
-      </span>
+    {# Marketplace logo badge — DATA-SOURCE: sanity #}
+    {% if product.marketplace and product.marketplace.domain %}
+      <img
+        src="https://www.google.com/s2/favicons?domain={{ product.marketplace.domain }}&sz=128"
+        alt="{{ product.marketplace.name }}"
+        class="h-5 w-5 rounded-sm object-contain"
+        onerror="this.style.display='none'"
+      >
     {% endif %}
 
     {# Product name (click → modal) #}

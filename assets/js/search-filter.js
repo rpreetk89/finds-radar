@@ -118,7 +118,7 @@
     // Product name suggestions: from cards currently visible on the page
     var seen = {};
     var products = [];
-    document.querySelectorAll('.product-card[data-name]').forEach(function (card) {
+    document.querySelectorAll('.product-card[data-name]:not([data-carousel-clone])').forEach(function (card) {
       var key = card.dataset.name || '';
       if (!seen[key] && key.indexOf(q) !== -1) {
         seen[key] = true;
@@ -227,38 +227,84 @@
   var activeCategory = '';
   var activeMarketplace = '';
 
+  var searchResultsSection = null;
+  var searchResultsRow = null;
+
   function applyFilters() {
+    if (!searchResultsSection) searchResultsSection = document.getElementById('search-results-section');
+    if (!searchResultsRow) searchResultsRow = document.getElementById('search-results-row');
+
     var input = document.getElementById('grid-search');
     var q = input ? input.value.trim().toLowerCase() : '';
-    var cards = document.querySelectorAll('.product-card[data-name]');
+    var cards = document.querySelectorAll('.product-card[data-name]:not([data-carousel-clone])');
     var visible = 0;
 
-    cards.forEach(function (card) {
-      var matchText = !q
-        || (card.dataset.name || '').indexOf(q) !== -1
-        || (card.dataset.description || '').indexOf(q) !== -1
-        || (card.dataset.categories || '').indexOf(q) !== -1;
+    // Always reset cards to visible first (needed when clearing search)
+    cards.forEach(function (card) { card.style.display = ''; });
 
-      var cardCats = (card.dataset.categories || '').split(',').map(function (c) { return c.trim(); });
-      var matchCat = !activeCategory || cardCats.indexOf(activeCategory) !== -1;
-      var matchMp = !activeMarketplace || (card.dataset.marketplace || '') === activeMarketplace;
+    if (q) {
+      // ── Search mode: flat results, no category grouping ───────────────────
+      // Hide Top 10, New this week, and all category sections
+      document.querySelectorAll('section[data-section="top10"], section[data-section="newthisweek"]').forEach(function (s) {
+        s.style.display = 'none';
+      });
+      document.querySelectorAll('section[id^="cat-"]').forEach(function (s) {
+        s.style.display = 'none';
+      });
 
-      var show = matchText && matchCat && matchMp;
-      card.style.display = show ? '' : 'none';
-      if (show) visible++;
-    });
+      // Collect matching cards into the flat results row
+      // Search all real cards (no clones), deduplicate by name so each product appears once
+      if (searchResultsRow) searchResultsRow.innerHTML = '';
+      var seen = {};
 
-    var counter = document.getElementById('filter-count');
-    if (counter) counter.textContent = visible + ' find' + (visible === 1 ? '' : 's');
+      document.querySelectorAll('.product-card[data-name]:not([data-carousel-clone])').forEach(function (card) {
+        var key = card.dataset.name || '';
+        if (!key || seen[key]) return;
 
-    // Section row visibility
-    document.querySelectorAll('section').forEach(function (section) {
-      var sectionCards = section.querySelectorAll('.product-card');
-      if (!sectionCards.length) return;
-      var anyVisible = false;
-      sectionCards.forEach(function (c) { if (c.style.display !== 'none') anyVisible = true; });
-      section.style.display = anyVisible ? '' : 'none';
-    });
+        var matchText = key.indexOf(q) !== -1
+          || (card.dataset.description || '').indexOf(q) !== -1
+          || (card.dataset.categories || '').indexOf(q) !== -1;
+
+        var cardCats = (card.dataset.categories || '').split(',').map(function (c) { return c.trim(); });
+        var matchCat = !activeCategory || cardCats.indexOf(activeCategory) !== -1;
+        var matchMp = !activeMarketplace || (card.dataset.marketplace || '') === activeMarketplace;
+
+        if (matchText && matchCat && matchMp) {
+          seen[key] = true;
+          if (searchResultsRow) searchResultsRow.appendChild(card.cloneNode(true));
+          visible++;
+        }
+      });
+
+      if (searchResultsSection) searchResultsSection.classList.toggle('hidden', visible === 0);
+
+    } else {
+      // ── Browse mode: restore all sections ────────────────────────────────
+      if (searchResultsSection) searchResultsSection.classList.add('hidden');
+      if (searchResultsRow) searchResultsRow.innerHTML = '';
+
+      document.querySelectorAll('section[data-section="top10"], section[data-section="newthisweek"]').forEach(function (s) {
+        s.style.display = '';
+      });
+
+      cards.forEach(function (card) {
+        var cardCats = (card.dataset.categories || '').split(',').map(function (c) { return c.trim(); });
+        var matchCat = !activeCategory || cardCats.indexOf(activeCategory) !== -1;
+        var matchMp = !activeMarketplace || (card.dataset.marketplace || '') === activeMarketplace;
+        var show = matchCat && matchMp;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      // Category section visibility
+      document.querySelectorAll('section[id^="cat-"]').forEach(function (section) {
+        var sectionCards = section.querySelectorAll('.product-card:not([data-carousel-clone])');
+        if (!sectionCards.length) return;
+        var anyVisible = false;
+        sectionCards.forEach(function (c) { if (c.style.display !== 'none') anyVisible = true; });
+        section.style.display = anyVisible ? '' : 'none';
+      });
+    }
 
     // Empty state
     var emptyEl = document.getElementById('filter-empty');
@@ -307,7 +353,7 @@
     if (!container) return;
     var seen = {};
     var chips = [];
-    document.querySelectorAll('.product-card[data-marketplace]').forEach(function (card) {
+    document.querySelectorAll('.product-card[data-marketplace]:not([data-carousel-clone])').forEach(function (card) {
       var slug = card.dataset.marketplace;
       var name = card.dataset.marketplaceName;
       if (slug && !seen[slug]) { seen[slug] = true; chips.push({slug: slug, name: name || slug}); }

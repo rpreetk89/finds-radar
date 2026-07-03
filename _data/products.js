@@ -15,7 +15,7 @@ module.exports = async function () {
       affiliate_link,
       featured,
       "categories": categories[]->name,
-      "marketplace": marketplace->{ name, "slug": slug.current },
+      "marketplace": marketplace->{ name, "slug": slug.current, domain },
       "country": country->{ name, code, flag },
       media[] { "url": coalesce(asset->url, url), type }
     }
