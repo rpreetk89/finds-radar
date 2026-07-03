@@ -103,7 +103,7 @@ Before marking any task done, verify:
 - Flag any hardcoded values that should become CMS fields
 
 ### 6. DEPLOY
-- **Always deploy to `dev` branch first** — push to `origin/dev`, let Netlify build, and wait for user confirmation before touching `main`.
+- **Always deploy to `dev` branch first** — push to `origin/dev`, let Cloudflare Pages build, and wait for user confirmation before touching `main`.
 - Never push directly to `main` without explicit user approval. `main` = production.
 - Confirm build output is clean (`_site/` directory)
 - Verify GitHub Actions (or your CI) passes
