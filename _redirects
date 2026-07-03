@@ -4,3 +4,6 @@
 # No global home — root and /new/ go to the default country (US)
 /     /us/       302
 /new/ /us/new/   302
+
+# Catch-all: any unmatched URL (404) redirects to home
+/*    /us/       302
