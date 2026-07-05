@@ -43,7 +43,7 @@ function parseCSV(text: string): Record<string, string>[] {
       })
       return row
     })
-    .filter((row) => row.name)
+    .filter((row) => row.name || row._id)
 }
 
 function uid(): string {
@@ -52,9 +52,9 @@ function uid(): string {
 
 // ── Template CSV ──────────────────────────────────────────────────────────────
 
-const TEMPLATE_CSV = `name,description,price,affiliate_link,categories,marketplace_slug,country_code,image_url,featured,published
-"Handheld Steamer","Compact travel iron for clothes","$19.99","https://example.com/buy","Home|Travel","amazon-us","us","https://example.com/img1.jpg|https://example.com/img2.jpg",false,true
-"Wireless Earbuds","Noise-cancelling buds","$49.99","https://example.com/buy2","Technology","temu-us","us","https://example.com/image2.jpg",false,true`
+const TEMPLATE_CSV = `name,description,price,affiliate_link,categories,marketplace_slug,country_code,image_url,featured,status
+"Handheld Steamer","Compact travel iron for clothes","$19.99","https://example.com/buy","Home|Travel","amazon-us","us","https://example.com/img1.jpg|https://example.com/img2.jpg",false,published
+"Wireless Earbuds","Noise-cancelling buds","$49.99","https://example.com/buy2","Technology","temu-us","us","https://example.com/image2.jpg",false,draft`
 
 function downloadTemplate() {
   const blob = new Blob([TEMPLATE_CSV], {type: 'text/csv'})
@@ -69,6 +69,7 @@ function downloadTemplate() {
 // ── Column reference ──────────────────────────────────────────────────────────
 
 const COLUMNS = [
+  {key: '_id', label: 'Document ID — only for updating an existing product (leave blank to create new)', required: false},
   {key: 'name', label: 'Name', required: true},
   {key: 'description', label: 'Description', required: false},
   {key: 'price', label: 'Price', required: false},
@@ -78,12 +79,13 @@ const COLUMNS = [
   {key: 'country_code', label: 'Country Code', required: false},
   {key: 'image_url', label: 'Image URLs — separate multiple with | (e.g. url1|url2)', required: false},
   {key: 'featured', label: 'Featured (true/false)', required: false},
-  {key: 'published', label: 'Published (true/false)', required: false},
+  {key: 'status', label: 'Status — draft / published / inactive', required: false},
 ]
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ImportRow {
+  _id?: string
   name: string
   description?: string
   price?: string
@@ -93,7 +95,34 @@ interface ImportRow {
   country_code?: string
   image_url?: string
   featured?: string
-  published?: string
+  status?: string
+  published?: string // legacy column, still honored if `status` is blank
+}
+
+interface CurrentDoc {
+  _id: string
+  name?: string
+  description?: string
+  price?: string
+  affiliate_link?: string
+  featured?: boolean
+  status?: string
+  categories?: string[]
+  marketplace_slug?: string
+  country_code?: string
+  image_url?: string[]
+}
+
+interface Change {
+  label: string
+  from: string
+  to: string
+}
+
+interface PreviewRow {
+  row: ImportRow
+  mode: 'create' | 'update' | 'not-found'
+  changes: Change[]
 }
 
 interface RowResult {
@@ -102,27 +131,136 @@ interface RowResult {
   message?: string
 }
 
+function resolvedStatus(row: ImportRow): string {
+  if (row.status) return row.status.toLowerCase().trim()
+  if (row.published) return row.published === 'false' ? 'draft' : 'published'
+  return 'published'
+}
+
+function normCategories(names: string[] | undefined): string {
+  return (names || []).map((n) => n.toLowerCase().trim()).filter(Boolean).sort().join('|')
+}
+
+function csvCategories(value: string | undefined): string {
+  return normCategories((value || '').split('|').map((s) => s.trim()))
+}
+
+// ── Diffing ───────────────────────────────────────────────────────────────────
+
+function computeChanges(row: ImportRow, current: CurrentDoc): Change[] {
+  const changes: Change[] = []
+
+  function check(label: string, csvValue: string | undefined, currentValue: string) {
+    if (csvValue === undefined || csvValue === '') return // blank = no change
+    if (csvValue.trim() === (currentValue || '').trim()) return
+    changes.push({label, from: currentValue || '—', to: csvValue})
+  }
+
+  check('Name', row.name, current.name || '')
+  check('Description', row.description, current.description || '')
+  check('Price', row.price, current.price || '')
+  check('Affiliate Link', row.affiliate_link, current.affiliate_link || '')
+  check('Marketplace', row.marketplace_slug, current.marketplace_slug || '')
+  check('Country', row.country_code, current.country_code || '')
+
+  if (row.categories !== undefined && row.categories !== '') {
+    const csvNorm = csvCategories(row.categories)
+    const curNorm = normCategories(current.categories)
+    if (csvNorm !== curNorm) {
+      changes.push({label: 'Categories', from: (current.categories || []).join(', ') || '—', to: row.categories})
+    }
+  }
+
+  if (row.image_url !== undefined && row.image_url !== '') {
+    const csvUrls = row.image_url.split('|').map((s) => s.trim()).filter(Boolean).join('|')
+    const curUrls = (current.image_url || []).join('|')
+    if (csvUrls !== curUrls) {
+      changes.push({label: 'Images', from: `${(current.image_url || []).length} image(s)`, to: `${csvUrls.split('|').filter(Boolean).length} image(s)`})
+    }
+  }
+
+  if (row.featured !== undefined && row.featured !== '') {
+    const csvFeatured = row.featured === 'true'
+    if (csvFeatured !== Boolean(current.featured)) {
+      changes.push({label: 'Featured', from: current.featured ? 'true' : 'false', to: csvFeatured ? 'true' : 'false'})
+    }
+  }
+
+  const csvStatus = row.status || row.published ? resolvedStatus(row) : undefined
+  if (csvStatus !== undefined && csvStatus !== (current.status || '')) {
+    changes.push({label: 'Status', from: current.status || '—', to: csvStatus})
+  }
+
+  return changes
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function BulkImportTool() {
   const client = useClient({apiVersion: '2024-01-01'})
 
   const [csvText, setCsvText] = useState('')
-  const [rows, setRows] = useState<ImportRow[]>([])
+  const [preview, setPreview] = useState<PreviewRow[]>([])
   const [parsed, setParsed] = useState(false)
+  const [analyzing, setAnalyzing] = useState(false)
   const [importing, setImporting] = useState(false)
   const [results, setResults] = useState<RowResult[]>([])
   const [progress, setProgress] = useState<{done: number; total: number} | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // ── Parse ──────────────────────────────────────────────────────────────────
+  // ── Parse + analyze (build create/update preview with diffs) ───────────────
+
+  async function analyze(text: string) {
+    setAnalyzing(true)
+    try {
+      const rows = parseCSV(text) as unknown as ImportRow[]
+      const ids = rows.map((r) => r._id).filter((v): v is string => Boolean(v))
+
+      let currentById: Record<string, CurrentDoc> = {}
+      if (ids.length > 0) {
+        const docs = await client.fetch<any[]>(
+          `*[_id in $ids]{
+            _id, name, description, price, affiliate_link, featured, status,
+            "categories": categories[]->name,
+            "marketplace_slug": marketplace->slug.current,
+            "country_code": country->code,
+            "media": media[]{"assetUrl": asset->url, url}
+          }`,
+          {ids},
+        )
+        currentById = Object.fromEntries(
+          docs.map((d) => [
+            d._id,
+            {
+              ...d,
+              image_url: (d.media || []).map((m: any) => m.assetUrl || m.url).filter(Boolean),
+            } as CurrentDoc,
+          ]),
+        )
+      }
+
+      const built: PreviewRow[] = rows.map((row) => {
+        if (!row._id) {
+          return {row, mode: 'create', changes: []}
+        }
+        const current = currentById[row._id]
+        if (!current) {
+          return {row, mode: 'not-found', changes: []}
+        }
+        return {row, mode: 'update', changes: computeChanges(row, current)}
+      })
+
+      setPreview(built)
+      setParsed(true)
+      setResults([])
+      setProgress(null)
+    } finally {
+      setAnalyzing(false)
+    }
+  }
 
   function handleParse() {
-    const parsed = parseCSV(csvText) as unknown as ImportRow[]
-    setRows(parsed)
-    setParsed(true)
-    setResults([])
-    setProgress(null)
+    analyze(csvText)
   }
 
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -132,11 +270,7 @@ export function BulkImportTool() {
     reader.onload = (ev) => {
       const text = ev.target?.result as string
       setCsvText(text)
-      const parsed = parseCSV(text) as unknown as ImportRow[]
-      setRows(parsed)
-      setParsed(true)
-      setResults([])
-      setProgress(null)
+      analyze(text)
     }
     reader.readAsText(file)
   }
@@ -145,7 +279,8 @@ export function BulkImportTool() {
 
   async function handleImport() {
     setImporting(true)
-    setProgress({done: 0, total: rows.length})
+    const importable = preview.filter((p) => p.mode !== 'not-found')
+    setProgress({done: 0, total: importable.length})
     setResults([])
 
     // Fetch all reference docs once
@@ -172,67 +307,86 @@ export function BulkImportTool() {
       countryByCode[c.code.toLowerCase()] = c._id
     })
 
-    const rowResults: RowResult[] = []
+    async function resolveCategoryRefs(value: string | undefined) {
+      const catNames = (value || '').split('|').map((s) => s.trim()).filter(Boolean)
+      const catRefs = []
+      for (const catName of catNames) {
+        const key = catName.toLowerCase().trim()
+        if (!catByName[key]) {
+          const newCat = await client.create({_type: 'category', name: catName})
+          catByName[key] = newCat._id
+        }
+        catRefs.push({_type: 'reference', _ref: catByName[key], _key: uid()})
+      }
+      return catRefs
+    }
 
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]
+    function resolveMedia(value: string | undefined) {
+      return (value || '')
+        .split('|')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((url) => ({_type: 'mediaItem', _key: uid(), url}))
+    }
+
+    const rowResults: RowResult[] = []
+    let done = 0
+
+    for (const item of importable) {
+      const row = item.row
       try {
-        // Resolve categories (create if missing)
-        const catNames = (row.categories || '')
-          .split('|')
-          .map((s) => s.trim())
-          .filter(Boolean)
-        const catRefs = []
-        for (const catName of catNames) {
-          const key = catName.toLowerCase().trim()
-          if (!catByName[key]) {
-            const newCat = await client.create({_type: 'category', name: catName})
-            catByName[key] = newCat._id
+        if (item.mode === 'create') {
+          const catRefs = await resolveCategoryRefs(row.categories)
+          const mpId = mpBySlug[(row.marketplace_slug || '').toLowerCase().trim()]
+          const countryId = countryByCode[(row.country_code || '').toLowerCase().trim()]
+
+          await client.create({
+            _type: 'product',
+            name: row.name,
+            description: row.description || '',
+            price: row.price || '',
+            affiliate_link: row.affiliate_link || '',
+            featured: row.featured === 'true',
+            status: resolvedStatus(row),
+            ...(mpId ? {marketplace: {_type: 'reference', _ref: mpId}} : {}),
+            ...(countryId ? {country: {_type: 'reference', _ref: countryId}} : {}),
+            categories: catRefs,
+            media: resolveMedia(row.image_url),
+          })
+        } else {
+          // update — only patch fields that were flagged as changed
+          const patch: Record<string, any> = {}
+          const changedLabels = new Set(item.changes.map((c) => c.label))
+
+          if (changedLabels.has('Name')) patch.name = row.name
+          if (changedLabels.has('Description')) patch.description = row.description
+          if (changedLabels.has('Price')) patch.price = row.price
+          if (changedLabels.has('Affiliate Link')) patch.affiliate_link = row.affiliate_link
+          if (changedLabels.has('Featured')) patch.featured = row.featured === 'true'
+          if (changedLabels.has('Status')) patch.status = resolvedStatus(row)
+          if (changedLabels.has('Categories')) patch.categories = await resolveCategoryRefs(row.categories)
+          if (changedLabels.has('Images')) patch.media = resolveMedia(row.image_url)
+          if (changedLabels.has('Marketplace')) {
+            const mpId = mpBySlug[(row.marketplace_slug || '').toLowerCase().trim()]
+            if (mpId) patch.marketplace = {_type: 'reference', _ref: mpId}
           }
-          catRefs.push({_type: 'reference', _ref: catByName[key], _key: uid()})
+          if (changedLabels.has('Country')) {
+            const countryId = countryByCode[(row.country_code || '').toLowerCase().trim()]
+            if (countryId) patch.country = {_type: 'reference', _ref: countryId}
+          }
+
+          if (Object.keys(patch).length > 0) {
+            await client.patch(row._id as string).set(patch).commit()
+          }
         }
 
-        // Resolve marketplace
-        const mpSlug = (row.marketplace_slug || '').toLowerCase().trim()
-        const mpId = mpBySlug[mpSlug]
-
-        // Resolve country
-        const countryCode = (row.country_code || '').toLowerCase().trim()
-        const countryId = countryByCode[countryCode]
-
-        // Build media array
-        const imageUrls = (row.image_url || '')
-          .split('|')
-          .map((s) => s.trim())
-          .filter(Boolean)
-        const media = imageUrls.map((url) => ({
-          _type: 'mediaItem',
-          _key: uid(),
-          url,
-          type: 'image',
-        }))
-
-        // Create product
-        await client.create({
-          _type: 'product',
-          name: row.name,
-          description: row.description || '',
-          price: row.price || '',
-          affiliate_link: row.affiliate_link || '',
-          featured: row.featured === 'true',
-          published: row.published !== 'false',
-          ...(mpId ? {marketplace: {_type: 'reference', _ref: mpId}} : {}),
-          ...(countryId ? {country: {_type: 'reference', _ref: countryId}} : {}),
-          categories: catRefs,
-          media,
-        })
-
-        rowResults.push({name: row.name, status: 'ok'})
+        rowResults.push({name: row.name || row._id || '(unknown)', status: 'ok'})
       } catch (err: any) {
-        rowResults.push({name: row.name, status: 'error', message: err?.message || 'Unknown error'})
+        rowResults.push({name: row.name || row._id || '(unknown)', status: 'error', message: err?.message || 'Unknown error'})
       }
 
-      setProgress({done: i + 1, total: rows.length})
+      done += 1
+      setProgress({done, total: importable.length})
     }
 
     setResults(rowResults)
@@ -243,7 +397,7 @@ export function BulkImportTool() {
 
   function handleReset() {
     setCsvText('')
-    setRows([])
+    setPreview([])
     setParsed(false)
     setResults([])
     setProgress(null)
@@ -254,6 +408,9 @@ export function BulkImportTool() {
 
   const okCount = results.filter((r) => r.status === 'ok').length
   const errCount = results.filter((r) => r.status === 'error').length
+  const notFoundCount = preview.filter((p) => p.mode === 'not-found').length
+  const createCount = preview.filter((p) => p.mode === 'create').length
+  const updateCount = preview.filter((p) => p.mode === 'update').length
 
   return (
     <Box padding={5} style={{maxWidth: 960, margin: '0 auto'}}>
@@ -261,17 +418,19 @@ export function BulkImportTool() {
 
         {/* Header */}
         <Stack space={2}>
-          <Heading size={2}>Bulk Import Products</Heading>
+          <Heading size={2}>Bulk Import / Update Products</Heading>
           <Text muted size={1}>
-            Import multiple products at once via CSV. References (marketplace, country, categories)
-            are resolved by slug/code/name. New categories are created automatically.
+            Import new products or bulk-update existing ones via CSV. Include a product's <code>_id</code> column
+            (e.g. from Dashboard → Download CSV) to update it in place — leave <code>_id</code> blank to create a
+            new product. References (marketplace, country, categories) are resolved by slug/code/name; new
+            categories are created automatically. Blank cells are always treated as "no change" on updates.
           </Text>
         </Stack>
 
         {/* Column reference card */}
         <Card padding={4} radius={2} tone="primary" border>
           <Stack space={3}>
-            <Text size={1} weight="semibold">Required CSV columns</Text>
+            <Text size={1} weight="semibold">CSV columns</Text>
             <Box style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px'}}>
               {COLUMNS.map((col) => (
                 <Flex key={col.key} align="center" gap={2}>
@@ -322,10 +481,10 @@ export function BulkImportTool() {
 
               <Flex gap={2} align="center">
                 <Button
-                  text={`Parse ${csvText.trim() ? '& preview' : ''}`}
+                  text={analyzing ? 'Analyzing…' : `Parse ${csvText.trim() ? '& preview' : ''}`}
                   icon={DocumentsIcon}
                   onClick={handleParse}
-                  disabled={!csvText.trim()}
+                  disabled={!csvText.trim() || analyzing}
                   tone="primary"
                 />
                 <Text muted size={1}>or</Text>
@@ -333,6 +492,7 @@ export function BulkImportTool() {
                   text="Upload .csv file"
                   mode="ghost"
                   onClick={() => fileRef.current?.click()}
+                  disabled={analyzing}
                 />
                 <input
                   ref={fileRef}
@@ -341,17 +501,23 @@ export function BulkImportTool() {
                   style={{display: 'none'}}
                   onChange={handleFileUpload}
                 />
+                {analyzing && <Spinner />}
               </Flex>
             </Stack>
           </Card>
         )}
 
         {/* Preview table */}
-        {parsed && rows.length > 0 && results.length === 0 && (
+        {parsed && preview.length > 0 && results.length === 0 && (
           <Card padding={4} radius={2} border>
             <Stack space={3}>
-              <Flex align="center" justify="space-between">
-                <Text size={1} weight="semibold">{rows.length} products ready to import</Text>
+              <Flex align="center" justify="space-between" wrap="wrap" gap={2}>
+                <Text size={1} weight="semibold">
+                  {createCount > 0 && `${createCount} to create`}
+                  {createCount > 0 && updateCount > 0 && ' · '}
+                  {updateCount > 0 && `${updateCount} to update`}
+                  {notFoundCount > 0 && ` · ${notFoundCount} with unknown _id (will be skipped)`}
+                </Text>
                 <Button text="Back / edit" mode="ghost" onClick={handleReset} fontSize={1} />
               </Flex>
 
@@ -359,7 +525,7 @@ export function BulkImportTool() {
                 <table style={{width: '100%', borderCollapse: 'collapse', fontSize: 12}}>
                   <thead>
                     <tr>
-                      {['#', 'Name', 'Categories', 'Marketplace', 'Country', 'Featured', 'Published'].map((h) => (
+                      {['#', 'Image', 'Name', 'Action', 'Changes'].map((h) => (
                         <th
                           key={h}
                           style={{
@@ -377,17 +543,63 @@ export function BulkImportTool() {
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((row, i) => (
-                      <tr key={i} style={{borderBottom: '1px solid var(--card-border-color)'}}>
-                        <td style={{padding: '6px 10px', color: 'var(--card-muted-fg-color)'}}>{i + 1}</td>
-                        <td style={{padding: '6px 10px', fontWeight: 500, color: 'var(--card-fg-color)'}}>{row.name}</td>
-                        <td style={{padding: '6px 10px', color: 'var(--card-fg-color)'}}>{row.categories || '—'}</td>
-                        <td style={{padding: '6px 10px', color: 'var(--card-fg-color)', fontFamily: 'monospace'}}>{row.marketplace_slug || '—'}</td>
-                        <td style={{padding: '6px 10px', color: 'var(--card-fg-color)', fontFamily: 'monospace'}}>{row.country_code || '—'}</td>
-                        <td style={{padding: '6px 10px', color: 'var(--card-fg-color)'}}>{row.featured === 'true' ? '✓' : '—'}</td>
-                        <td style={{padding: '6px 10px', color: 'var(--card-fg-color)'}}>{row.published === 'false' ? 'Draft' : 'Published'}</td>
-                      </tr>
-                    ))}
+                    {preview.map((item, i) => {
+                      const row = item.row
+                      const firstImage = (row.image_url || '').split('|').map((s) => s.trim()).filter(Boolean)[0]
+                      const imageCount = (row.image_url || '').split('|').map((s) => s.trim()).filter(Boolean).length
+                      return (
+                        <tr key={i} style={{borderBottom: '1px solid var(--card-border-color)'}}>
+                          <td style={{padding: '6px 10px', color: 'var(--card-muted-fg-color)'}}>{i + 1}</td>
+                          <td style={{padding: '6px 10px'}}>
+                            {firstImage ? (
+                              <Box style={{position: 'relative', width: 48, height: 48}}>
+                                <img
+                                  src={firstImage}
+                                  alt=""
+                                  style={{width: 48, height: 48, objectFit: 'cover', borderRadius: 4, display: 'block'}}
+                                  onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.2' }}
+                                />
+                                {imageCount > 1 && (
+                                  <Badge tone="primary" fontSize={0} style={{position: 'absolute', bottom: -4, right: -4}}>
+                                    {imageCount}
+                                  </Badge>
+                                )}
+                              </Box>
+                            ) : (
+                              <Text muted size={0}>none</Text>
+                            )}
+                          </td>
+                          <td style={{padding: '6px 10px', fontWeight: 500, color: 'var(--card-fg-color)'}}>
+                            {row.name || <Text muted size={0} style={{fontFamily: 'monospace'}}>{row._id}</Text>}
+                          </td>
+                          <td style={{padding: '6px 10px'}}>
+                            {item.mode === 'create' && <Badge tone="positive" fontSize={0}>Create</Badge>}
+                            {item.mode === 'update' && <Badge tone="primary" fontSize={0}>Update</Badge>}
+                            {item.mode === 'not-found' && <Badge tone="critical" fontSize={0}>Unknown _id</Badge>}
+                          </td>
+                          <td style={{padding: '6px 10px', color: 'var(--card-fg-color)'}}>
+                            {item.mode === 'create' && <Text muted size={0}>New record</Text>}
+                            {item.mode === 'not-found' && (
+                              <Text size={0} style={{color: 'var(--card-fg-color)'}}>
+                                No product found with this _id — will be skipped
+                              </Text>
+                            )}
+                            {item.mode === 'update' && item.changes.length === 0 && (
+                              <Text muted size={0}>No changes</Text>
+                            )}
+                            {item.mode === 'update' && item.changes.length > 0 && (
+                              <Stack space={1}>
+                                {item.changes.map((c, ci) => (
+                                  <Text key={ci} size={0} style={{fontFamily: 'monospace'}}>
+                                    {c.label}: <span style={{opacity: 0.6}}>{c.from}</span> → {c.to}
+                                  </Text>
+                                ))}
+                              </Stack>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </Box>
@@ -402,10 +614,10 @@ export function BulkImportTool() {
               {!importing && (
                 <Flex gap={2}>
                   <Button
-                    text={importing ? 'Importing…' : `Import ${rows.length} products →`}
+                    text={importing ? 'Importing…' : `Apply ${createCount + updateCount} change${createCount + updateCount !== 1 ? 's' : ''} →`}
                     icon={UploadIcon}
                     onClick={handleImport}
-                    disabled={importing}
+                    disabled={importing || createCount + updateCount === 0}
                     tone="positive"
                   />
                   <Button text="Cancel" mode="ghost" onClick={handleReset} disabled={importing} />
@@ -421,7 +633,7 @@ export function BulkImportTool() {
             <Flex align="center" gap={3}>
               <Spinner />
               <Text size={1}>
-                Importing… {progress.done} / {progress.total} products
+                Applying… {progress.done} / {progress.total} products
               </Text>
             </Flex>
           </Card>
@@ -437,7 +649,7 @@ export function BulkImportTool() {
                   : <ErrorOutlineIcon style={{color: 'var(--card-fg-color)'}} />
                 }
                 <Text size={1} weight="semibold">
-                  Import complete — {okCount} succeeded, {errCount} failed
+                  Done — {okCount} succeeded, {errCount} failed
                 </Text>
               </Flex>
 
@@ -459,7 +671,7 @@ export function BulkImportTool() {
                           <td style={{padding: '6px 10px', color: 'var(--card-fg-color)'}}>{r.name}</td>
                           <td style={{padding: '6px 10px'}}>
                             <Badge tone={r.status === 'ok' ? 'positive' : 'critical'} fontSize={0}>
-                              {r.status === 'ok' ? 'Imported' : 'Failed'}
+                              {r.status === 'ok' ? 'Applied' : 'Failed'}
                             </Badge>
                           </td>
                           <td style={{padding: '6px 10px', color: 'var(--card-muted-fg-color)', fontFamily: 'monospace', fontSize: 11}}>
@@ -478,11 +690,11 @@ export function BulkImportTool() {
         )}
 
         {/* Parsed but no rows */}
-        {parsed && rows.length === 0 && (
+        {parsed && preview.length === 0 && (
           <Card padding={4} radius={2} border tone="caution">
             <Stack space={2}>
               <Text size={1} weight="semibold">No valid rows found</Text>
-              <Text muted size={1}>Check your CSV has a header row and at least one data row with a "name" column.</Text>
+              <Text muted size={1}>Check your CSV has a header row and at least one data row with a "name" or "_id" column.</Text>
               <Button text="Try again" mode="ghost" onClick={handleReset} />
             </Stack>
           </Card>

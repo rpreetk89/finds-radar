@@ -5,7 +5,6 @@ import {media} from 'sanity-plugin-media'
 import {schemaTypes} from './schemaTypes'
 import {BulkImportTool} from './plugins/BulkImport'
 import {DashboardTool} from './plugins/Dashboard'
-import {FetchProductDetailsAction} from './actions/FetchProductDetails'
 
 const dashboardTool = {name: 'dashboard', title: 'Dashboard', component: DashboardTool}
 const bulkImportTool = {name: 'bulk-import', title: 'Bulk Import', component: BulkImportTool}
@@ -78,12 +77,6 @@ const baseConfig = {
   ],
   schema: {
     types: schemaTypes,
-  },
-  document: {
-    actions: (prev: any[], context: any) =>
-      context.schemaType === 'product'
-        ? [FetchProductDetailsAction, ...prev]
-        : prev,
   },
   tools: (prev: any[]) => [dashboardTool, ...prev, bulkImportTool],
 }

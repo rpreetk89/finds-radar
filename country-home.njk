@@ -68,7 +68,7 @@ eleventyComputed:
               onerror="this.style.display='none'"
             >
           {% endif %}
-          {{ mp.name }}
+          {{ mp.display_name or mp.name }}
         </button>
       {% endif %}
     {% endfor %}
@@ -86,14 +86,14 @@ eleventyComputed:
   </div>
 </section>
 
-{# ── Pick of the week ─────────────────────────────────────────────────────── #}
-{# DATA-SOURCE: sanity | featured flag + _createdAt #}
+{# ── Featured ──────────────────────────────────────────────────────────────── #}
+{# DATA-SOURCE: sanity | featured flag (manual selection, max 10) #}
 {% set pickProducts = countryProducts | topFeatured(10) %}
 {% if pickProducts | length %}
 <section data-section="top10" class="mb-10 py-6" style="background: linear-gradient(135deg, var(--color-banner-from) 0%, var(--color-banner-to) 100%);">
   <div class="px-4 mb-3 flex items-center gap-3">
     <h2 class="section-row-header" style="color:var(--color-banner-text);">
-      <span style="color:var(--color-brand);">✦</span>&nbsp;Top 10 of the week
+      <span style="color:var(--color-brand);">✦</span>&nbsp;Featured
     </h2>
   </div>
   <div class="pick-carousel-wrapper product-row-wrapper">
@@ -108,15 +108,14 @@ eleventyComputed:
 </section>
 {% endif %}
 
-{# ── New this week — only appears if products were actually added in the last 7 days #}
-{% set thisWeekProducts = countryProducts | addedWithinDays(7) | newestFirst | limit(8) %}
+{# ── Recent Additions — most recently added products, regardless of date #}
+{% set thisWeekProducts = countryProducts | newestFirst | limit(10) %}
 {% if thisWeekProducts | length %}
 <section data-section="newthisweek" class="mb-10">
   <div class="px-4 mb-3 flex items-center gap-3">
     <a href="{{ newPageUrl }}" class="section-row-header">
-      <span class="text-brand">✦</span>&nbsp;New this week
+      <span class="text-brand">✦</span>&nbsp;Recent Additions
     </a>
-    <span class="text-xs bg-brand text-white px-2 py-0.5 rounded-full font-bold">{{ thisWeekProducts | length }}</span>
     <a href="{{ newPageUrl }}" class="see-all-link ml-auto">See all →</a>
   </div>
   <div class="product-row-wrapper">
@@ -134,7 +133,7 @@ eleventyComputed:
 {% for row in catRows %}
 <section class="mb-10" id="cat-{{ row.slug }}">
   <div class="px-4 mb-3 flex items-center gap-3">
-    <a href="{{ categoryBaseUrl }}{{ row.name | lower }}/" class="section-row-header capitalize">{{ row.name }}</a>
+    <a href="{{ categoryBaseUrl }}{{ row.name | lower }}/" class="section-row-header capitalize">{{ row.name | categoryDisplayName(categories) }}</a>
     <a href="{{ categoryBaseUrl }}{{ row.name | lower }}/" class="see-all-link ml-auto">See all {{ row.totalCount }} →</a>
   </div>
   <div class="product-row-wrapper">

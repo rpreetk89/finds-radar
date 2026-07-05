@@ -47,15 +47,21 @@ module.exports = function (eleventyConfig) {
     return sorted[0] || null;
   });
 
-  // Return top N featured products; falls back to most recently added if <N are featured
+  // Return up to N manually-featured products, newest first. No fallback — shows fewer than N if fewer are featured.
   eleventyConfig.addFilter('topFeatured', (arr, count) => {
-    const n = count || 5;
-    const all = arr || [];
-    const featured = all.filter((p) => p.featured);
-    const pool = featured.length >= n ? featured : all;
-    return [...pool]
+    const n = count || 10;
+    return [...(arr || [])]
+      .filter((p) => p.featured)
       .sort((a, b) => new Date(b._createdAt || 0) - new Date(a._createdAt || 0))
       .slice(0, n);
+  });
+
+  // Look up a category's display name by its backend name; falls back to the backend name itself
+  eleventyConfig.addFilter('categoryDisplayName', (name, categoriesList) => {
+    const match = (categoriesList || []).find(
+      (c) => (c.name || '').toLowerCase() === (name || '').toLowerCase(),
+    );
+    return match && match.display_name ? match.display_name : name;
   });
 
   // Group US products into category rows for the homepage feed
@@ -220,7 +226,7 @@ module.exports = function (eleventyConfig) {
         if (catProducts.length === 0) continue;
         pages.push({
           catName: cat.name.toLowerCase(),
-          catDisplay: cat.name,
+          catDisplay: cat.display_name || cat.name,
           countryCode: country.code,
           countryName: country.name,
           isDefault: country.isDefault || false,

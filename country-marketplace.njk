@@ -6,7 +6,7 @@ pagination:
 permalink: "/{{ page.countryCode }}/marketplaces/{{ page.marketplace.slug }}/index.html"
 layout: base.njk
 eleventyComputed:
-  title: "FindsRadar — {{ page.marketplace.name }}"
+  title: "FindsRadar — {{ page.marketplace.display_name or page.marketplace.name }}"
 ---
 
 <div class="max-w-7xl mx-auto px-4 py-8 text-slate-900 dark:text-white">
@@ -23,14 +23,14 @@ eleventyComputed:
     {% if page.marketplace.domain %}
       <img
         src="https://www.google.com/s2/favicons?domain={{ page.marketplace.domain }}&sz=128"
-        alt="{{ page.marketplace.name }}"
+        alt="{{ page.marketplace.display_name or page.marketplace.name }}"
         class="h-8 w-auto rounded"
         onerror="this.style.display='none'"
       >
     {% endif %}
-    <h1 class="text-3xl font-bold capitalize">{{ page.marketplace.name }}</h1>
+    <h1 class="text-3xl font-bold capitalize">{{ page.marketplace.display_name or page.marketplace.name }}</h1>
   </div>
-  <p class="text-slate-500 dark:text-slate-400 mb-8">Browse categories on {{ page.marketplace.name }}</p>
+  <p class="text-slate-500 dark:text-slate-400 mb-8">Browse categories on {{ page.marketplace.display_name or page.marketplace.name }}</p>
 
   {% set categoryBaseUrl = '/' + page.countryCode + '/categories/' %}
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

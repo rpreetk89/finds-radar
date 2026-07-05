@@ -7,7 +7,7 @@
   data-description="{{ (product.description or '') | lower }}"
   data-categories="{{ (product.categories or []) | join(',') | lower }}"
   data-marketplace="{{ product.marketplace.slug if product.marketplace else '' }}"
-  data-marketplace-name="{{ product.marketplace.name if product.marketplace else '' }}"
+  data-marketplace-name="{{ (product.marketplace.display_name or product.marketplace.name) if product.marketplace else '' }}"
 >
 
   {# ── Image (click → modal) ── #}
@@ -49,7 +49,7 @@
     {% if product.marketplace and product.marketplace.domain %}
       <img
         src="https://www.google.com/s2/favicons?domain={{ product.marketplace.domain }}&sz=128"
-        alt="{{ product.marketplace.name }}"
+        alt="{{ product.marketplace.display_name or product.marketplace.name }}"
         class="h-5 w-5 rounded-sm object-contain"
         onerror="this.style.display='none'"
       >

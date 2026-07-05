@@ -1,4 +1,6 @@
+import React from 'react'
 import {defineField, defineType} from 'sanity'
+import {ImageIcon} from '@sanity/icons'
 
 export default defineType({
   name: 'product',
@@ -12,10 +14,26 @@ export default defineType({
     defineField({name: 'affiliate_link', title: 'Affiliate Link', type: 'url', validation: (R) => R.required()}),
     defineField({
       name: 'featured',
-      title: 'Show in Category Card',
+      title: 'Featured',
       type: 'boolean',
-      description: 'Pin to the homepage category card (max 4 per category shown)',
+      description: 'Adds this product to the homepage "Featured" list (max 10 sitewide) and pins it in its category card.',
       initialValue: false,
+      validation: (Rule) =>
+        Rule.custom(async (value, context) => {
+          if (!value) return true
+          const client = context.getClient({apiVersion: '2024-01-01'})
+          const id = context.document?._id as string | undefined
+          const rawId = id?.startsWith('drafts.') ? id.slice('drafts.'.length) : id
+          const excludeIds = rawId ? [rawId, `drafts.${rawId}`] : []
+          const otherCount = await client.fetch<number>(
+            `count(*[_type == "product" && featured == true && !defined(deleted_at) && !(_id in $excludeIds)])`,
+            {excludeIds},
+          )
+          if (otherCount >= 10) {
+            return '10 products are already Featured — un-feature one before adding another.'
+          }
+          return true
+        }),
     }),
     defineField({
       name: 'marketplace',
@@ -42,6 +60,7 @@ export default defineType({
       title: 'Images',
       type: 'array',
       description: 'Upload images directly (preferred) or paste URLs as fallback.',
+      options: {layout: 'grid'},
       of: [
         {
           type: 'object',
@@ -61,10 +80,20 @@ export default defineType({
             },
           ],
           preview: {
-            select: {media: 'asset', title: 'url'},
+            select: {media: 'asset', url: 'url'},
             prepare: (value: Record<string, any>) => ({
-              title: String(value.title || 'Image'),
-              media: value.media,
+              title: String(value.url || 'Image'),
+              media: value.media
+                ? value.media
+                : value.url
+                  ? () => (
+                      <img
+                        src={value.url}
+                        alt=""
+                        style={{width: '100%', height: '100%', objectFit: 'cover'}}
+                      />
+                    )
+                  : ImageIcon,
             }),
           },
         },

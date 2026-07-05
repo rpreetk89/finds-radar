@@ -3,7 +3,7 @@ const client = require('../lib/sanityClient')
 
 module.exports = async function () {
   const all = await client.fetch(`
-    *[_type == "category"] | order(name asc) { name }
+    *[_type == "category"] | order(name asc) { name, "slug": slug.current, display_name }
   `)
   const seen = new Set()
   return all.filter((c) => {

@@ -51,7 +51,7 @@ title: Saved Finds — FindsRadar
       : '<div class="w-full h-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xs text-slate-400 dark:text-slate-500">No Image</div>';
 
     var badge = p.marketplace
-      ? '<span class="text-xs text-slate-400 dark:text-slate-500 font-medium truncate">' + esc(p.marketplace.name) + (p.country ? ' · ' + esc(p.country.name) : '') + '</span>'
+      ? '<span class="text-xs text-slate-400 dark:text-slate-500 font-medium truncate">' + esc(p.marketplace.display_name || p.marketplace.name) + (p.country ? ' · ' + esc(p.country.name) : '') + '</span>'
       : '';
 
     var cta = p.affiliate_link

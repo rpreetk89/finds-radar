@@ -5,6 +5,7 @@ module.exports = async function () {
   const all = await client.fetch(`
     *[_type == "marketplace"] | order(country->code asc, name asc) {
       name,
+      display_name,
       domain,
       "slug": slug.current,
       "country": country->{ name, code, flag }

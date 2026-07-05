@@ -1,11 +1,11 @@
 import React, {useEffect, useState, useCallback} from 'react'
 import {useClient, useCurrentUser} from 'sanity'
 import {
-  Box, Button, Card, Flex, Heading, Spinner, Stack, Text, Badge, Select, Checkbox, Label,
+  Box, Button, Card, Flex, Heading, Spinner, Stack, Text, Badge, Select, Checkbox, Label, useToast,
 } from '@sanity/ui'
 import {
   CheckmarkCircleIcon, ErrorOutlineIcon, RestoreIcon, LaunchIcon,
-  PublishIcon, RemoveCircleIcon, ClockIcon,
+  PublishIcon, RemoveCircleIcon, ClockIcon, DownloadIcon,
 } from '@sanity/icons'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -43,6 +43,35 @@ const archiveCutoff = () => {
   const d = new Date()
   d.setDate(d.getDate() - ARCHIVE_DAYS)
   return d.toISOString()
+}
+
+// ── CSV export ───────────────────────────────────────────────────────────────
+
+const CSV_COLUMNS = [
+  '_id', 'name', 'description', 'price', 'affiliate_link', 'categories',
+  'marketplace_slug', 'country_code', 'image_url', 'featured', 'status',
+  'inactive_reason',
+]
+
+function toCSVField(value: string): string {
+  if (/[",\n]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`
+  }
+  return value
+}
+
+function downloadCSV(filename: string, rows: Record<string, string>[]) {
+  const lines = [
+    CSV_COLUMNS.join(','),
+    ...rows.map((row) => CSV_COLUMNS.map((col) => toCSVField(row[col] || '')).join(',')),
+  ]
+  const blob = new Blob([lines.join('\n')], {type: 'text/csv'})
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
@@ -97,11 +126,50 @@ function DeactivateModal({
   )
 }
 
+interface PendingChange {
+  _id: string
+  _type: string
+  name: string
+  kind: 'created' | 'updated'
+}
+
+function PushConfirmModal({
+  changes, pushing, siteLabel, onConfirm, onCancel,
+}: {changes: PendingChange[]; pushing: boolean; siteLabel: string; onConfirm: () => void; onCancel: () => void}) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+    }}>
+      <Card padding={5} radius={3} style={{width: 440, maxWidth: '90vw'}}>
+        <Stack space={4}>
+          <Heading size={1}>Push {changes.length} change{changes.length !== 1 ? 's' : ''} to the {siteLabel}</Heading>
+          <Text size={1} muted>
+            This rebuilds the <strong>{siteLabel}</strong> with the current content. It can take a
+            few minutes to go live once triggered.
+          </Text>
+          <Flex gap={2} justify="flex-end">
+            <Button text="Cancel" mode="ghost" onClick={onCancel} disabled={pushing} />
+            <Button
+              text={pushing ? 'Pushing…' : 'Push to site'}
+              tone="positive"
+              icon={PublishIcon}
+              disabled={pushing}
+              onClick={onConfirm}
+            />
+          </Flex>
+        </Stack>
+      </Card>
+    </div>
+  )
+}
+
 // ── Main Dashboard ─────────────────────────────────────────────────────────────
 
 export function DashboardTool() {
   const client = useClient({apiVersion: '2024-01-01'})
   const currentUser = useCurrentUser()
+  const toast = useToast()
 
   const [stats, setStats] = useState<Stats | null>(null)
   const [products, setProducts] = useState<Product[]>([])
@@ -110,6 +178,15 @@ export function DashboardTool() {
   const [loading, setLoading] = useState(true)
   const [actionBusy, setActionBusy] = useState(false)
   const [showDeactivate, setShowDeactivate] = useState(false)
+  const [exporting, setExporting] = useState(false)
+
+  const currentDataset = client.config().dataset
+  const siteLabel = currentDataset === 'production' ? 'live production site' : `${currentDataset} preview site`
+  const [lastDeployedAt, setLastDeployedAt] = useState<string | null>(null)
+  const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([])
+  const [pendingLoading, setPendingLoading] = useState(true)
+  const [showPushConfirm, setShowPushConfirm] = useState(false)
+  const [pushing, setPushing] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -136,6 +213,62 @@ export function DashboardTool() {
   }, [client])
 
   useEffect(() => {load()}, [load])
+
+  // ── Push changes to site ─────────────────────────────────────────────────────
+  const loadPendingChanges = useCallback(async () => {
+    setPendingLoading(true)
+    try {
+      const status = await client.fetch<{lastDeployedAt?: string; lastDeployedBy?: string} | null>(
+        `*[_type == "deployStatus"][0]{lastDeployedAt, lastDeployedBy}`,
+      )
+      const since = status?.lastDeployedAt || '1970-01-01T00:00:00Z'
+      setLastDeployedAt(status?.lastDeployedAt || null)
+
+      const docs = await client.fetch<{_id: string; _type: string; name: string; _createdAt: string}[]>(
+        `*[_type in ["product", "category", "marketplace"] && !defined(deleted_at) &&
+           (_createdAt > $since || _updatedAt > $since)] | order(_updatedAt desc) {
+          _id, _type, name, _createdAt
+        }`,
+        {since},
+      )
+      setPendingChanges(
+        docs.map((d) => ({
+          _id: d._id,
+          _type: d._type,
+          name: d.name || d._id,
+          kind: d._createdAt > since ? 'created' : 'updated',
+        })),
+      )
+    } finally {
+      setPendingLoading(false)
+    }
+  }, [client])
+
+  useEffect(() => {loadPendingChanges()}, [loadPendingChanges])
+
+  async function pushToSite() {
+    setPushing(true)
+    try {
+      const res = await fetch('/api/deploy', {method: 'POST'})
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || `Request failed (${res.status})`)
+      }
+      await client.createOrReplace({
+        _id: 'deployStatus',
+        _type: 'deployStatus',
+        lastDeployedAt: new Date().toISOString(),
+        lastDeployedBy: currentUser?.email || 'operator',
+      })
+      toast.push({status: 'success', title: `Rebuild triggered for the ${siteLabel} — live in a few minutes`})
+      setShowPushConfirm(false)
+      await loadPendingChanges()
+    } catch (err: any) {
+      toast.push({status: 'error', title: 'Push failed', description: err?.message || 'Unknown error'})
+    } finally {
+      setPushing(false)
+    }
+  }
 
   // ── Filtering ─────────────────────────────────────────────────────────────
   const visibleProducts = products.filter((p) => {
@@ -228,6 +361,49 @@ export function DashboardTool() {
     }
   }
 
+  // ── Export CSV (always the full catalog, regardless of the filter above) ────
+  async function exportCSV() {
+    setExporting(true)
+    try {
+      const docs = await client.fetch<any[]>(`
+        *[_type == "product" && !defined(deleted_at)] | order(_createdAt desc) {
+          _id, name, description, price, affiliate_link, featured, status, inactive_reason,
+          "categories": categories[]->name,
+          "marketplace_slug": marketplace->slug.current,
+          "country_code": country->code,
+          "media": media[]{"assetUrl": asset->url, url}
+        }
+      `)
+      const rows = docs.map((d) => ({
+        _id: d._id,
+        name: d.name || '',
+        description: d.description || '',
+        price: d.price || '',
+        affiliate_link: d.affiliate_link || '',
+        categories: (d.categories || []).join('|'),
+        marketplace_slug: d.marketplace_slug || '',
+        country_code: d.country_code || '',
+        image_url: (d.media || []).map((m: any) => m.assetUrl || m.url).filter(Boolean).join('|'),
+        featured: d.featured ? 'true' : 'false',
+        status: d.status || 'draft',
+        inactive_reason: d.inactive_reason || '',
+      }))
+      downloadCSV(`findsradar-products-${new Date().toISOString().slice(0, 10)}.csv`, rows)
+      toast.push({
+        status: 'success',
+        title: `Exported ${rows.length} product${rows.length !== 1 ? 's' : ''}`,
+      })
+    } catch (err: any) {
+      toast.push({
+        status: 'error',
+        title: 'Export failed',
+        description: err?.message || 'Unknown error',
+      })
+    } finally {
+      setExporting(false)
+    }
+  }
+
   // ── Re-enable single product ───────────────────────────────────────────────
   async function reEnable(product: Product) {
     setActionBusy(true)
@@ -259,7 +435,17 @@ export function DashboardTool() {
         {/* Header */}
         <Flex align="center" gap={3}>
           <Heading size={2}>Site Health Dashboard</Heading>
-          <Button text="Refresh" mode="ghost" fontSize={1} onClick={load} style={{marginLeft: 'auto'}} />
+          <Flex gap={2} style={{marginLeft: 'auto'}}>
+            <Button
+              text={exporting ? 'Exporting…' : 'Download CSV'}
+              icon={DownloadIcon}
+              mode="ghost"
+              fontSize={1}
+              disabled={exporting}
+              onClick={exportCSV}
+            />
+            <Button text="Refresh" mode="ghost" fontSize={1} onClick={load} />
+          </Flex>
         </Flex>
 
         {/* Stats */}
@@ -270,6 +456,46 @@ export function DashboardTool() {
           <StatCard label="Inactive"   value={s.inactive}  tone={s.inactive > 0 ? 'caution' : 'default'} />
           <StatCard label={`Archived (${ARCHIVE_DAYS}d+)`} value={s.archived} tone={s.archived > 0 ? 'critical' : 'default'} />
         </Flex>
+
+        {/* Push changes to site */}
+        <Card padding={4} radius={2} border tone={pendingChanges.length > 0 ? 'primary' : 'default'}>
+          <Stack space={3}>
+            <Flex align="center" gap={3} wrap="wrap">
+              <Heading size={1}>Push changes to {siteLabel}</Heading>
+              <Button
+                text={pendingChanges.length > 0 ? `Push ${pendingChanges.length} change${pendingChanges.length !== 1 ? 's' : ''} to site` : 'Push to site'}
+                icon={PublishIcon}
+                tone="positive"
+                fontSize={1}
+                disabled={pendingLoading || pendingChanges.length === 0}
+                onClick={() => setShowPushConfirm(true)}
+                style={{marginLeft: 'auto'}}
+              />
+            </Flex>
+            <Text size={1} muted>
+              {lastDeployedAt
+                ? `Last pushed ${new Date(lastDeployedAt).toLocaleString()}`
+                : 'Never pushed from this panel yet.'}
+            </Text>
+            {pendingLoading ? (
+              <Flex align="center" gap={2}><Spinner /><Text size={1} muted>Checking for changes…</Text></Flex>
+            ) : pendingChanges.length === 0 ? (
+              <Text size={1} muted>No changes since the last push.</Text>
+            ) : (
+              <Stack space={1}>
+                {pendingChanges.map((c) => (
+                  <Flex key={c._id} align="center" gap={2}>
+                    <Badge tone={c.kind === 'created' ? 'positive' : 'primary'} fontSize={0} mode="outline">
+                      {c.kind}
+                    </Badge>
+                    <Text size={1} muted style={{fontFamily: 'monospace', fontSize: 11}}>{c._type}</Text>
+                    <Text size={1}>{c.name}</Text>
+                  </Flex>
+                ))}
+              </Stack>
+            )}
+          </Stack>
+        </Card>
 
         {/* Bulk Actions Panel */}
         <Stack space={3}>
@@ -427,6 +653,17 @@ export function DashboardTool() {
           count={selected.size}
           onConfirm={bulkDeactivate}
           onCancel={() => setShowDeactivate(false)}
+        />
+      )}
+
+      {/* Push-to-site confirmation modal */}
+      {showPushConfirm && (
+        <PushConfirmModal
+          changes={pendingChanges}
+          pushing={pushing}
+          siteLabel={siteLabel}
+          onConfirm={pushToSite}
+          onCancel={() => setShowPushConfirm(false)}
         />
       )}
     </Box>
