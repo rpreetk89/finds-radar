@@ -6,15 +6,47 @@
     <meta name="description" content="{{ metaDescription if metaDescription else 'FindsRadar — hot finds, handpicked from top marketplaces.' }}">
     <title>{{ title if title else 'FindsRadar' }}</title>
 
+    {# Canonical #}
+    <link rel="canonical" href="{{ canonicalUrl if canonicalUrl else site.url ~ page.url }}">
+
+    {# hreflang — regional variants of the same content, when applicable #}
+    {% if catPage %}
+      {% for alt in catPage.alternates %}
+    <link rel="alternate" hreflang="en-{{ alt.code }}" href="{{ site.url }}{{ alt.url }}">
+      {% endfor %}
+      {% for alt in catPage.alternates %}{% if alt.isDefault %}
+    <link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ alt.url }}">
+      {% endif %}{% endfor %}
+    {% elif country %}
+      {% set suffix = '/new/' if '/new/' in page.url else '/' %}
+      {% for c in countries %}
+    <link rel="alternate" hreflang="en-{{ c.code }}" href="{{ site.url }}/{{ c.code }}{{ suffix }}">
+      {% endfor %}
+      {% for c in countries %}{% if c.isDefault %}
+    <link rel="alternate" hreflang="x-default" href="{{ site.url }}/{{ c.code }}{{ suffix }}">
+      {% endif %}{% endfor %}
+    {% endif %}
+
     {# Favicon + app icons #}
     <link rel="icon" href="/images/icon-mark-static.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/images/icon-mark-static.svg">
     <link rel="manifest" href="/manifest.json">
 
     {# Open Graph #}
-    <meta property="og:image" content="https://findsradar.com/images/logo-static-light.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FindsRadar">
+    <meta property="og:title" content="{{ title if title else 'FindsRadar' }}">
+    <meta property="og:description" content="{{ metaDescription if metaDescription else 'FindsRadar — hot finds, handpicked from top marketplaces.' }}">
+    <meta property="og:url" content="{{ site.url ~ page.url }}">
+    <meta property="og:image" content="{{ site.url }}/images/logo-static-light.svg">
     <meta property="og:image:width" content="820">
     <meta property="og:image:height" content="240">
+
+    {# Twitter Card #}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ title if title else 'FindsRadar' }}">
+    <meta name="twitter:description" content="{{ metaDescription if metaDescription else 'FindsRadar — hot finds, handpicked from top marketplaces.' }}">
+    <meta name="twitter:image" content="{{ site.url }}/images/logo-static-light.svg">
 
     <link rel="stylesheet" href="/assets/css/logo-styles.css">
     <style>

@@ -20,6 +20,16 @@ module.exports = function (eleventyConfig) {
     const match = (countriesList || []).find((c) => c.code === (code || '').toLowerCase());
     return match ? match.name : code;
   });
+
+  // Strip currency symbols/commas from a display price, e.g. "$19.99" -> "19.99". Used for JSON-LD.
+  eleventyConfig.addFilter('numericPrice', (price) => {
+    if (!price) return null;
+    const match = String(price).replace(/,/g, '').match(/[\d.]+/);
+    return match ? match[0] : null;
+  });
+
+  const CURRENCY_BY_COUNTRY = {us: 'USD', ca: 'CAD', in: 'INR'};
+  eleventyConfig.addFilter('currencyCode', (code) => CURRENCY_BY_COUNTRY[(code || '').toLowerCase()] || 'USD');
   eleventyConfig.addFilter('featuredFirst', (arr) =>
     [...(arr || [])].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0)),
   );
@@ -237,6 +247,12 @@ module.exports = function (eleventyConfig) {
         });
       }
     }
+    // hreflang alternates — only list country variants of this same category that actually exist
+    pages.forEach((page) => {
+      page.alternates = pages
+        .filter((p) => p.catName === page.catName)
+        .map((p) => ({code: p.countryCode, url: p.pageUrl, isDefault: p.isDefault}));
+    });
     return pages;
   });
 

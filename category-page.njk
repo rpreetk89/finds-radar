@@ -3,11 +3,46 @@ pagination:
   data: collections.categoryPages
   size: 1
   alias: catPage
+  addAllPagesToCollections: true
 permalink: "{{ catPage.pageUrl }}index.html"
 layout: base.njk
 eleventyComputed:
   title: "{{ catPage.catDisplay }} Finds — FindsRadar"
+  metaDescription: "Shop {{ catPage.products.length }} handpicked {{ catPage.catDisplay }} finds for {{ catPage.countryName }} on FindsRadar."
 ---
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": {{ (catPage.catDisplay + " Finds") | jsonify | safe }},
+  "itemListElement": [
+    {% for product in catPage.products %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index }},
+      "item": {
+        "@type": "Product",
+        "name": {{ product.name | jsonify | safe }}
+        {%- if product.media and product.media[0] %},
+        "image": {{ product.media[0].url | jsonify | safe }}
+        {%- endif %},
+        "url": {{ product.affiliate_link | jsonify | safe }}
+        {%- if product.price and (product.price | numericPrice) %},
+        "offers": {
+          "@type": "Offer",
+          "price": {{ (product.price | numericPrice) | jsonify | safe }},
+          "priceCurrency": {{ (catPage.countryCode | currencyCode) | jsonify | safe }},
+          "availability": "https://schema.org/InStock",
+          "url": {{ product.affiliate_link | jsonify | safe }}
+        }
+        {%- endif %}
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
 
 <div class="max-w-7xl mx-auto px-4 py-8 text-slate-900 dark:text-white">
 
