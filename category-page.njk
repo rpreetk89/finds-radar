@@ -28,15 +28,6 @@ eleventyComputed:
         "image": {{ product.media[0].url | jsonify | safe }}
         {%- endif %},
         "url": {{ product.affiliate_link | jsonify | safe }}
-        {%- if product.price and (product.price | numericPrice) %},
-        "offers": {
-          "@type": "Offer",
-          "price": {{ (product.price | numericPrice) | jsonify | safe }},
-          "priceCurrency": {{ (catPage.countryCode | currencyCode) | jsonify | safe }},
-          "availability": "https://schema.org/InStock",
-          "url": {{ product.affiliate_link | jsonify | safe }}
-        }
-        {%- endif %}
       }
     }{% if not loop.last %},{% endif %}
     {% endfor %}
