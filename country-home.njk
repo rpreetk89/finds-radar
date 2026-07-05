@@ -87,7 +87,8 @@ eleventyComputed:
 </section>
 
 {# ── Featured ──────────────────────────────────────────────────────────────── #}
-{# DATA-SOURCE: sanity | featured flag (manual selection, max 10) #}
+{# DATA-SOURCE: sanity | featured flag (manual selection, max 10). Order is
+   reshuffled client-side per visitor so no product is always buried at the end. #}
 {% set pickProducts = countryProducts | topFeatured(10) %}
 {% if pickProducts | length %}
 <section data-section="top10" class="mb-10 py-6" style="background: linear-gradient(135deg, var(--color-banner-from) 0%, var(--color-banner-to) 100%);">
@@ -96,12 +97,16 @@ eleventyComputed:
       <span style="color:var(--color-brand);">✦</span>&nbsp;Featured
     </h2>
   </div>
-  <div class="product-row-wrapper">
-    <div class="product-row px-4">
+  <div class="pick-carousel-wrapper product-row-wrapper">
+    <div class="product-row px-4" id="pick-carousel">
       {% for product in pickProducts %}
         {% include "product-card.njk" %}
       {% endfor %}
     </div>
+    {% if pickProducts | length > 1 %}
+    <button class="pick-nav-btn pick-nav-prev" onclick="pickNav(-1)" aria-label="Previous">&#8249;</button>
+    <button class="pick-nav-btn pick-nav-next" onclick="pickNav(1)" aria-label="Next">&#8250;</button>
+    {% endif %}
   </div>
 </section>
 {% endif %}
@@ -145,3 +150,56 @@ eleventyComputed:
 {% else %}
 <p class="text-center text-slate-500 dark:text-slate-400 py-12">No products found for {{ country.name }} yet.</p>
 {% endfor %}
+
+<script>
+(function () {
+  var wrapper = document.getElementById('pick-carousel');
+  if (!wrapper) return;
+
+  // Shuffle order per visitor — no product should always land in a buried position
+  var cards = Array.from(wrapper.children);
+  for (var i = cards.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+  }
+  cards.forEach(function (c) { wrapper.appendChild(c); });
+
+  var N = cards.length;
+  if (N < 2) return; // nothing to navigate
+
+  function getPad() { return parseInt(getComputedStyle(wrapper).paddingLeft) || 16; }
+
+  // Find the card nearest the current scroll position — works no matter how
+  // the user got there (arrow click, swipe, trackpad, scrollbar drag).
+  function getCurrentIndex() {
+    var pos = wrapper.scrollLeft + getPad();
+    var closest = 0, closestDist = Infinity;
+    cards.forEach(function (c, idx) {
+      var dist = Math.abs(c.offsetLeft - pos);
+      if (dist < closestDist) { closestDist = dist; closest = idx; }
+    });
+    return closest;
+  }
+
+  function scrollToIndex(idx) {
+    var left = cards[idx].offsetLeft - getPad();
+    wrapper.scrollTo({left: left, behavior: 'smooth'});
+  }
+
+  window.pickNav = function (dir) {
+    var next = getCurrentIndex() + dir;
+    if (next < 0) next = N - 1;   // wrap to last
+    if (next >= N) next = 0;      // wrap to first
+    scrollToIndex(next);
+  };
+
+  var touchX = 0;
+  wrapper.addEventListener('touchstart', function (e) {
+    touchX = e.touches[0].clientX;
+  }, {passive: true});
+  wrapper.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) window.pickNav(dx < 0 ? 1 : -1);
+  }, {passive: true});
+})();
+</script>
