@@ -96,14 +96,12 @@ eleventyComputed:
       <span style="color:var(--color-brand);">✦</span>&nbsp;Featured
     </h2>
   </div>
-  <div class="pick-carousel-wrapper product-row-wrapper">
-    <div class="product-row px-4" id="pick-carousel">
+  <div class="product-row-wrapper">
+    <div class="product-row px-4">
       {% for product in pickProducts %}
         {% include "product-card.njk" %}
       {% endfor %}
     </div>
-    <button class="pick-nav-btn pick-nav-prev" onclick="pickNav(-1)" aria-label="Previous">&#8249;</button>
-    <button class="pick-nav-btn pick-nav-next" onclick="pickNav(1)" aria-label="Next">&#8250;</button>
   </div>
 </section>
 {% endif %}
@@ -147,90 +145,3 @@ eleventyComputed:
 {% else %}
 <p class="text-center text-slate-500 dark:text-slate-400 py-12">No products found for {{ country.name }} yet.</p>
 {% endfor %}
-
-<script>
-(function () {
-  var carousel = document.getElementById('pick-carousel');
-  if (!carousel) return;
-
-  // Clone all cards and append — gives us a seamless wrap-around
-  var origCards = Array.from(carousel.querySelectorAll('.product-card'));
-  var N = origCards.length;
-  if (N === 0) return;
-
-  // Too few items for a loop to mean anything — cloning would just show a
-  // pointless duplicate next to the original. Show them as-is, no nav.
-  if (N < 3) {
-    document.querySelectorAll('.pick-nav-btn').forEach(function (b) { b.style.display = 'none'; });
-    return;
-  }
-
-  origCards.forEach(function (c) {
-    var clone = c.cloneNode(true);
-    clone.setAttribute('data-carousel-clone', 'true');
-    carousel.appendChild(clone);
-  });
-
-  var current = 0; // logical index 0..N-1
-  var timer;
-
-  function getPad() { return parseInt(getComputedStyle(carousel).paddingLeft) || 16; }
-  function cards() { return carousel.querySelectorAll('.product-card'); }
-
-  function scrollTo(domIdx, instant) {
-    var c = cards();
-    var left = c[domIdx].offsetLeft - getPad();
-    if (instant) {
-      carousel.style.scrollBehavior = 'auto'; // override CSS scroll-behavior: smooth
-      carousel.scrollLeft = left;
-      // eslint-disable-next-line no-unused-expressions
-      carousel.scrollLeft; // force reflow so the override takes effect
-      carousel.style.scrollBehavior = '';
-    } else {
-      carousel.scrollTo({ left: left, behavior: 'smooth' });
-    }
-  }
-
-  function advance() {
-    if (current < N - 1) {
-      current++;
-      scrollTo(current, false);
-    } else {
-      // Scroll smoothly into clone[0] (domIdx = N), then silently snap back to real[0]
-      scrollTo(N, false);
-      setTimeout(function () {
-        scrollTo(0, true);
-        current = 0;
-      }, 500);
-    }
-  }
-
-  function startAuto() {
-    clearInterval(timer);
-    timer = setInterval(advance, 3500);
-  }
-
-  window.pickNav = function (dir) {
-    clearInterval(timer);
-    current = ((current + dir) % N + N) % N;
-    scrollTo(current, false);
-    startAuto();
-  };
-
-  carousel.addEventListener('mouseenter', function () { clearInterval(timer); });
-  carousel.addEventListener('mouseleave', startAuto);
-
-  var touchX = 0;
-  carousel.addEventListener('touchstart', function (e) {
-    touchX = e.touches[0].clientX;
-    clearInterval(timer);
-  }, { passive: true });
-  carousel.addEventListener('touchend', function (e) {
-    var dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 50) window.pickNav(dx < 0 ? 1 : -1);
-    else startAuto();
-  }, { passive: true });
-
-  startAuto();
-})();
-</script>
