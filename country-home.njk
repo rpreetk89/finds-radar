@@ -157,6 +157,14 @@ eleventyComputed:
   var origCards = Array.from(carousel.querySelectorAll('.product-card'));
   var N = origCards.length;
   if (N === 0) return;
+
+  // Too few items for a loop to mean anything — cloning would just show a
+  // pointless duplicate next to the original. Show them as-is, no nav.
+  if (N < 3) {
+    document.querySelectorAll('.pick-nav-btn').forEach(function (b) { b.style.display = 'none'; });
+    return;
+  }
+
   origCards.forEach(function (c) {
     var clone = c.cloneNode(true);
     clone.setAttribute('data-carousel-clone', 'true');
