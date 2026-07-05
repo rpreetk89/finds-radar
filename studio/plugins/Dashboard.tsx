@@ -48,7 +48,7 @@ const archiveCutoff = () => {
 // ── CSV export ───────────────────────────────────────────────────────────────
 
 const CSV_COLUMNS = [
-  '_id', 'name', 'description', 'price', 'affiliate_link', 'categories',
+  '_id', 'name', 'description', 'affiliate_link', 'categories',
   'marketplace_slug', 'country_code', 'image_url', 'featured', 'status',
   'inactive_reason',
 ]
@@ -367,7 +367,7 @@ export function DashboardTool() {
     try {
       const docs = await client.fetch<any[]>(`
         *[_type == "product" && !defined(deleted_at)] | order(_createdAt desc) {
-          _id, name, description, price, affiliate_link, featured, status, inactive_reason,
+          _id, name, description, affiliate_link, featured, status, inactive_reason,
           "categories": categories[]->name,
           "marketplace_slug": marketplace->slug.current,
           "country_code": country->code,
@@ -378,7 +378,6 @@ export function DashboardTool() {
         _id: d._id,
         name: d.name || '',
         description: d.description || '',
-        price: d.price || '',
         affiliate_link: d.affiliate_link || '',
         categories: (d.categories || []).join('|'),
         marketplace_slug: d.marketplace_slug || '',

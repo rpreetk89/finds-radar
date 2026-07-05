@@ -52,9 +52,9 @@ function uid(): string {
 
 // ── Template CSV ──────────────────────────────────────────────────────────────
 
-const TEMPLATE_CSV = `name,description,price,affiliate_link,categories,marketplace_slug,country_code,image_url,featured,status
-"Handheld Steamer","Compact travel iron for clothes","$19.99","https://example.com/buy","Home|Travel","amazon-us","us","https://example.com/img1.jpg|https://example.com/img2.jpg",false,published
-"Wireless Earbuds","Noise-cancelling buds","$49.99","https://example.com/buy2","Technology","temu-us","us","https://example.com/image2.jpg",false,draft`
+const TEMPLATE_CSV = `name,description,affiliate_link,categories,marketplace_slug,country_code,image_url,featured,status
+"Handheld Steamer","Compact travel iron for clothes","https://example.com/buy","Home|Travel","amazon-us","us","https://example.com/img1.jpg|https://example.com/img2.jpg",false,published
+"Wireless Earbuds","Noise-cancelling buds","https://example.com/buy2","Technology","temu-us","us","https://example.com/image2.jpg",false,draft`
 
 function downloadTemplate() {
   const blob = new Blob([TEMPLATE_CSV], {type: 'text/csv'})
@@ -72,7 +72,6 @@ const COLUMNS = [
   {key: '_id', label: 'Document ID — only for updating an existing product (leave blank to create new)', required: false},
   {key: 'name', label: 'Name', required: true},
   {key: 'description', label: 'Description', required: false},
-  {key: 'price', label: 'Price', required: false},
   {key: 'affiliate_link', label: 'Affiliate Link', required: false},
   {key: 'categories', label: 'Categories (pipe-separated)', required: false},
   {key: 'marketplace_slug', label: 'Marketplace Slug', required: false},
@@ -88,7 +87,6 @@ interface ImportRow {
   _id?: string
   name: string
   description?: string
-  price?: string
   affiliate_link?: string
   categories?: string
   marketplace_slug?: string
@@ -103,7 +101,6 @@ interface CurrentDoc {
   _id: string
   name?: string
   description?: string
-  price?: string
   affiliate_link?: string
   featured?: boolean
   status?: string
@@ -158,7 +155,6 @@ function computeChanges(row: ImportRow, current: CurrentDoc): Change[] {
 
   check('Name', row.name, current.name || '')
   check('Description', row.description, current.description || '')
-  check('Price', row.price, current.price || '')
   check('Affiliate Link', row.affiliate_link, current.affiliate_link || '')
   check('Marketplace', row.marketplace_slug, current.marketplace_slug || '')
   check('Country', row.country_code, current.country_code || '')
@@ -220,7 +216,7 @@ export function BulkImportTool() {
       if (ids.length > 0) {
         const docs = await client.fetch<any[]>(
           `*[_id in $ids]{
-            _id, name, description, price, affiliate_link, featured, status,
+            _id, name, description, affiliate_link, featured, status,
             "categories": categories[]->name,
             "marketplace_slug": marketplace->slug.current,
             "country_code": country->code,
@@ -344,7 +340,6 @@ export function BulkImportTool() {
             _type: 'product',
             name: row.name,
             description: row.description || '',
-            price: row.price || '',
             affiliate_link: row.affiliate_link || '',
             featured: row.featured === 'true',
             status: resolvedStatus(row),
@@ -360,7 +355,6 @@ export function BulkImportTool() {
 
           if (changedLabels.has('Name')) patch.name = row.name
           if (changedLabels.has('Description')) patch.description = row.description
-          if (changedLabels.has('Price')) patch.price = row.price
           if (changedLabels.has('Affiliate Link')) patch.affiliate_link = row.affiliate_link
           if (changedLabels.has('Featured')) patch.featured = row.featured === 'true'
           if (changedLabels.has('Status')) patch.status = resolvedStatus(row)

@@ -10,7 +10,6 @@ export default defineType({
     // ── Core fields ────────────────────────────────────────────────────────────
     defineField({name: 'name', title: 'Name', type: 'string', validation: (R) => R.required()}),
     defineField({name: 'description', title: 'Description', type: 'text'}),
-    defineField({name: 'price', title: 'Price', type: 'string', description: 'Display price e.g. $19.99'}),
     defineField({name: 'affiliate_link', title: 'Affiliate Link', type: 'url', validation: (R) => R.required()}),
     defineField({
       name: 'featured',

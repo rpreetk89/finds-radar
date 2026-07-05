@@ -11,7 +11,6 @@ module.exports = async function () {
       _createdAt,
       name,
       description,
-      price,
       affiliate_link,
       featured,
       "categories": categories[]->name,
