@@ -7,8 +7,8 @@ pagination:
 permalink: "{{ catPage.pageUrl }}index.html"
 layout: base.njk
 eleventyComputed:
-  title: "{{ catPage.catDisplay }} Finds — FindsRadar"
-  metaDescription: "Shop {{ catPage.products.length }} handpicked {{ catPage.catDisplay }} finds for {{ catPage.countryName }} on FindsRadar."
+  title: "{{ catPage.catDisplay }} — FindsRadar"
+  metaDescription: "Shop {{ catPage.products.length }} handpicked {{ catPage.catDisplay }} for {{ catPage.countryName }} on FindsRadar."
 ---
 
 {% if catPage.isDefault %}
@@ -21,7 +21,7 @@ eleventyComputed:
 {
   "@context": "https://schema.org",
   "@type": "ItemList",
-  "name": {{ (catPage.catDisplay + " Finds") | jsonify | safe }},
+  "name": {{ catPage.catDisplay | jsonify | safe }},
   "itemListElement": [
     {% for product in catPage.products %}
     {
