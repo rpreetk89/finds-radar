@@ -21,6 +21,7 @@
 
     {% if page.url != homeUrl %}
       {% set currentPath = "" %}
+      {% set prevSegment = "" %}
       {% for segment in _segments %}
         {% if segment != "" %}
           {% set currentPath = currentPath + "/" + segment %}
@@ -40,6 +41,8 @@
                 {% set label = 'Categories' %}
               {% elif segment == 'marketplaces' %}
                 {% set label = 'Marketplaces' %}
+              {% elif prevSegment == 'categories' %}
+                {% set label = segment | categoryDisplayName(categories) %}
               {% else %}
                 {% set label = segment | replace("-", " ") %}
               {% endif %}
@@ -57,6 +60,7 @@
               {% endif %}
             </li>
           {% endif %}
+          {% set prevSegment = segment %}
         {% endif %}
       {% endfor %}
     {% endif %}

@@ -13,7 +13,7 @@ module.exports = async function () {
       description,
       affiliate_link,
       featured,
-      "categories": categories[]->name,
+      "categories": categories[defined(@->slug.current)]->slug.current,
       "marketplace": marketplace->{ name, display_name, "slug": slug.current, domain },
       "country": country->{ name, code, flag },
       media[] { "url": coalesce(asset->url, url), type }

@@ -120,6 +120,7 @@ interface PreviewRow {
   row: ImportRow
   mode: 'create' | 'update' | 'not-found'
   changes: Change[]
+  warnings: string[]
 }
 
 interface RowResult {
@@ -130,8 +131,28 @@ interface RowResult {
 
 function resolvedStatus(row: ImportRow): string {
   if (row.status) return row.status.toLowerCase().trim()
-  if (row.published) return row.published === 'false' ? 'draft' : 'published'
+  if (row.published) {
+    const v = row.published.toLowerCase().trim()
+    if (v === 'true') return 'published'
+    if (v === 'false') return 'draft'
+    // Unrecognized legacy value (e.g. "draft" typed into a true/false column) —
+    // default to draft rather than silently publishing. See statusWarning().
+    return 'draft'
+  }
   return 'published'
+}
+
+function statusWarning(row: ImportRow): string | undefined {
+  if (row.status || !row.published) return undefined
+  const v = row.published.toLowerCase().trim()
+  if (v !== 'true' && v !== 'false') {
+    return `"published" column has non-boolean value "${row.published}" — imported as draft. Use the "status" column (draft/published/inactive) instead.`
+  }
+  return undefined
+}
+
+function slugify(value: string): string {
+  return value.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
 }
 
 function normCategories(names: string[] | undefined): string {
@@ -190,6 +211,25 @@ function computeChanges(row: ImportRow, current: CurrentDoc): Change[] {
   return changes
 }
 
+// ── Category matching ─────────────────────────────────────────────────────────
+// CSV "categories" values are matched against BOTH an existing category's Name and its
+// Short Code (case-insensitive, exact). Anything that matches neither is flagged in the
+// preview as a new category that will be created, so typos/abbreviations (e.g. "tech" vs
+// an existing "Technology") are caught before Apply instead of silently creating a duplicate.
+
+function categoryWarning(row: ImportRow, existingCats: {name: string; slug: string}[]): string | undefined {
+  const catNames = (row.categories || '').split('|').map((s) => s.trim()).filter(Boolean)
+  if (catNames.length === 0) return undefined
+  const bySlug = new Set(existingCats.map((c) => (c.slug || '').toLowerCase()))
+  const byName = new Set(existingCats.map((c) => (c.name || '').toLowerCase()))
+  const unmatched = catNames.filter((n) => {
+    const key = n.toLowerCase()
+    return !bySlug.has(key) && !byName.has(key)
+  })
+  if (unmatched.length === 0) return undefined
+  return `New categor${unmatched.length === 1 ? 'y' : 'ies'} will be created: ${unmatched.join(', ')} — check for a typo of an existing category first.`
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function BulkImportTool() {
@@ -211,6 +251,10 @@ export function BulkImportTool() {
     try {
       const rows = parseCSV(text) as unknown as ImportRow[]
       const ids = rows.map((r) => r._id).filter((v): v is string => Boolean(v))
+
+      const existingCats = await client.fetch<{name: string; slug: string}[]>(
+        `*[_type == "category"]{name, "slug": slug.current}`,
+      )
 
       let currentById: Record<string, CurrentDoc> = {}
       if (ids.length > 0) {
@@ -236,14 +280,17 @@ export function BulkImportTool() {
       }
 
       const built: PreviewRow[] = rows.map((row) => {
+        const warnings = [statusWarning(row), categoryWarning(row, existingCats)].filter(
+          (w): w is string => Boolean(w),
+        )
         if (!row._id) {
-          return {row, mode: 'create', changes: []}
+          return {row, mode: 'create', changes: [], warnings}
         }
         const current = currentById[row._id]
         if (!current) {
-          return {row, mode: 'not-found', changes: []}
+          return {row, mode: 'not-found', changes: [], warnings}
         }
-        return {row, mode: 'update', changes: computeChanges(row, current)}
+        return {row, mode: 'update', changes: computeChanges(row, current), warnings}
       })
 
       setPreview(built)
@@ -284,7 +331,9 @@ export function BulkImportTool() {
       client.fetch<{_id: string; slug: string; name: string}[]>(
         `*[_type == "marketplace"]{_id, "slug": slug.current, name}`,
       ),
-      client.fetch<{_id: string; name: string}[]>(`*[_type == "category"]{_id, name}`),
+      client.fetch<{_id: string; name: string; slug: string}[]>(
+        `*[_type == "category"]{_id, name, "slug": slug.current}`,
+      ),
       client.fetch<{_id: string; code: string}[]>(`*[_type == "country"]{_id, code}`),
     ])
 
@@ -293,8 +342,11 @@ export function BulkImportTool() {
       mpBySlug[m.slug] = m._id
     })
 
+    // Matched by Short Code first, then Name — either can be typed in the CSV.
+    const catBySlug: Record<string, string> = {}
     const catByName: Record<string, string> = {}
     categories.forEach((c) => {
+      if (c.slug) catBySlug[c.slug.toLowerCase().trim()] = c._id
       catByName[c.name.toLowerCase().trim()] = c._id
     })
 
@@ -308,11 +360,19 @@ export function BulkImportTool() {
       const catRefs = []
       for (const catName of catNames) {
         const key = catName.toLowerCase().trim()
-        if (!catByName[key]) {
-          const newCat = await client.create({_type: 'category', name: catName})
-          catByName[key] = newCat._id
+        let id = catBySlug[key] || catByName[key]
+        if (!id) {
+          const newSlug = slugify(catName)
+          const newCat = await client.create({
+            _type: 'category',
+            name: catName,
+            slug: {_type: 'slug', current: newSlug},
+          })
+          id = newCat._id
+          catBySlug[key] = id
+          catByName[key] = id
         }
-        catRefs.push({_type: 'reference', _ref: catByName[key], _key: uid()})
+        catRefs.push({_type: 'reference', _ref: id, _key: uid()})
       }
       return catRefs
     }
@@ -572,24 +632,31 @@ export function BulkImportTool() {
                             {item.mode === 'not-found' && <Badge tone="critical" fontSize={0}>Unknown _id</Badge>}
                           </td>
                           <td style={{padding: '6px 10px', color: 'var(--card-fg-color)'}}>
-                            {item.mode === 'create' && <Text muted size={0}>New record</Text>}
-                            {item.mode === 'not-found' && (
-                              <Text size={0} style={{color: 'var(--card-fg-color)'}}>
-                                No product found with this _id — will be skipped
-                              </Text>
-                            )}
-                            {item.mode === 'update' && item.changes.length === 0 && (
-                              <Text muted size={0}>No changes</Text>
-                            )}
-                            {item.mode === 'update' && item.changes.length > 0 && (
-                              <Stack space={1}>
-                                {item.changes.map((c, ci) => (
-                                  <Text key={ci} size={0} style={{fontFamily: 'monospace'}}>
-                                    {c.label}: <span style={{opacity: 0.6}}>{c.from}</span> → {c.to}
-                                  </Text>
-                                ))}
-                              </Stack>
-                            )}
+                            <Stack space={1}>
+                              {item.warnings.map((w, wi) => (
+                                <Badge key={wi} tone="caution" fontSize={0} style={{alignSelf: 'flex-start'}}>
+                                  {w}
+                                </Badge>
+                              ))}
+                              {item.mode === 'create' && <Text muted size={0}>New record</Text>}
+                              {item.mode === 'not-found' && (
+                                <Text size={0} style={{color: 'var(--card-fg-color)'}}>
+                                  No product found with this _id — will be skipped
+                                </Text>
+                              )}
+                              {item.mode === 'update' && item.changes.length === 0 && (
+                                <Text muted size={0}>No changes</Text>
+                              )}
+                              {item.mode === 'update' && item.changes.length > 0 && (
+                                <Stack space={1}>
+                                  {item.changes.map((c, ci) => (
+                                    <Text key={ci} size={0} style={{fontFamily: 'monospace'}}>
+                                      {c.label}: <span style={{opacity: 0.6}}>{c.from}</span> → {c.to}
+                                    </Text>
+                                  ))}
+                                </Stack>
+                              )}
+                            </Stack>
                           </td>
                         </tr>
                       )

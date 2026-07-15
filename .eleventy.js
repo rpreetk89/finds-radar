@@ -57,12 +57,12 @@ module.exports = function (eleventyConfig) {
       .slice(0, n);
   });
 
-  // Look up a category's display name by its backend name; falls back to the backend name itself
-  eleventyConfig.addFilter('categoryDisplayName', (name, categoriesList) => {
+  // Look up a category's public name by its backend short code; falls back to the short code itself
+  eleventyConfig.addFilter('categoryDisplayName', (slug, categoriesList) => {
     const match = (categoriesList || []).find(
-      (c) => (c.name || '').toLowerCase() === (name || '').toLowerCase(),
+      (c) => (c.slug || '').toLowerCase() === (slug || '').toLowerCase(),
     );
-    return match && match.display_name ? match.display_name : name;
+    return match && match.name ? match.name : slug;
   });
 
   // Group US products into category rows for the homepage feed
@@ -99,8 +99,9 @@ module.exports = function (eleventyConfig) {
     const cats = await cached('categories', require('./_data/categories'));
     const seen = new Set();
     return cats
-      .map((c) => c.name.toLowerCase().trim())
-      .filter((name) => { if (seen.has(name)) return false; seen.add(name); return true; });
+      .filter((c) => c.slug)
+      .map((c) => c.slug.toLowerCase().trim())
+      .filter((slug) => { if (seen.has(slug)) return false; seen.add(slug); return true; });
   });
 
   // ── Collection: flat list of countries (drives header selector) ───────────
@@ -221,19 +222,20 @@ module.exports = function (eleventyConfig) {
     for (const country of countries) {
       const countryProducts = products.filter((p) => p.country?.code === country.code);
       for (const cat of cats) {
+        if (!cat.slug) continue;
         const catProducts = countryProducts.filter((p) =>
-          (p.categories || []).some((c) => c.toLowerCase() === cat.name.toLowerCase()),
+          (p.categories || []).some((c) => c.toLowerCase() === cat.slug.toLowerCase()),
         );
         if (catProducts.length === 0) continue;
         pages.push({
-          catName: cat.name.toLowerCase(),
-          catDisplay: cat.display_name || cat.name,
+          catName: cat.slug.toLowerCase(),
+          catDisplay: cat.name || cat.slug,
           countryCode: country.code,
           countryName: country.name,
           isDefault: country.isDefault || false,
           pageUrl: country.isDefault
-            ? `/categories/${cat.name.toLowerCase()}/`
-            : `/${country.code}/categories/${cat.name.toLowerCase()}/`,
+            ? `/categories/${cat.slug.toLowerCase()}/`
+            : `/${country.code}/categories/${cat.slug.toLowerCase()}/`,
           products: catProducts,
         });
       }
