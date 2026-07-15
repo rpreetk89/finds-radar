@@ -47,12 +47,19 @@
 
     {# Marketplace logo badge — DATA-SOURCE: sanity #}
     {% if product.marketplace and product.marketplace.domain %}
-      <img
-        src="https://www.google.com/s2/favicons?domain={{ product.marketplace.domain }}&sz=128"
-        alt="{{ product.marketplace.display_name or product.marketplace.name }}"
-        class="h-5 w-5 rounded-sm object-contain"
-        onerror="this.style.display='none'"
+      <button
+        type="button"
+        class="inline-flex items-center w-fit hover:opacity-75 transition-opacity"
+        onclick="selectMarketplaceFilter('{{ product.marketplace.slug }}')"
+        aria-label="Filter by {{ product.marketplace.display_name or product.marketplace.name }}"
       >
+        <img
+          src="https://www.google.com/s2/favicons?domain={{ product.marketplace.domain }}&sz=128"
+          alt="{{ product.marketplace.display_name or product.marketplace.name }}"
+          class="h-5 w-5 rounded-sm object-contain"
+          onerror="this.style.display='none'"
+        >
+      </button>
     {% endif %}
 
     {# Product name (click → modal) #}
@@ -62,6 +69,20 @@
     >
       {{ product.name }}
     </button>
+
+    {# Category tags — link to that category's page #}
+    {% if product.categories and product.categories.length %}
+      <div class="flex flex-wrap gap-1">
+        {% for cat in product.categories %}
+          <a
+            href="{{ (categoryBaseUrl if categoryBaseUrl else '/categories/') + (cat | lower) + '/' }}"
+            class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 hover:bg-brand hover:text-white dark:hover:bg-brand-hover dark:hover:text-white transition-colors"
+          >
+            {{ cat | categoryDisplayName(categories) }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
 
   </div>
 </div>

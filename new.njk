@@ -26,6 +26,9 @@ metaDescription: The latest finds added to FindsRadar, sorted by newest first.
     >
   </div>
 
+  {# Marketplace chips — populated by JS from card data attributes (only shown when 2+ marketplaces exist) #}
+  <div id="mp-chip-container" class="flex flex-wrap gap-2 mb-6"></div>
+
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
     {% for product in usProducts %}
       {% include "product-card.njk" %}

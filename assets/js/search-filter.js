@@ -366,6 +366,16 @@
     container.querySelectorAll('.filter-chip[data-filter-mp]').forEach(attachMpChip);
   }
 
+  // Triggered from a marketplace badge on a product card — reuses whichever
+  // marketplace chip already exists on the current page (static or dynamic).
+  // No-op if no matching chip is present (e.g. only one marketplace on this page).
+  window.selectMarketplaceFilter = function (slug) {
+    var chip = document.querySelector('.filter-chip[data-filter-mp="' + slug + '"]');
+    if (!chip) return;
+    chip.scrollIntoView({behavior: 'smooth', block: 'center'});
+    chip.click();
+  };
+
   function initFilters() {
     var input = document.getElementById('grid-search');
     if (input) input.addEventListener('input', applyFilters);

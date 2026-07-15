@@ -11,6 +11,12 @@ eleventyComputed:
   metaDescription: "Shop {{ catPage.products.length }} handpicked {{ catPage.catDisplay }} finds for {{ catPage.countryName }} on FindsRadar."
 ---
 
+{% if catPage.isDefault %}
+  {% set categoryBaseUrl = '/categories/' %}
+{% else %}
+  {% set categoryBaseUrl = '/' + catPage.countryCode + '/categories/' %}
+{% endif %}
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
