@@ -492,6 +492,7 @@ export function DashboardTool() {
       )
       await Promise.all(targets.map((p) => writeAuditLog(p, 'published')))
       await load()
+      loadPendingChanges()
     } finally {
       setActionBusy(false)
     }
@@ -516,6 +517,7 @@ export function DashboardTool() {
       )
       await Promise.all(targets.map((p) => writeAuditLog(p, 'inactive', reason)))
       await load()
+      loadPendingChanges()
     } finally {
       setActionBusy(false)
     }
@@ -574,6 +576,7 @@ export function DashboardTool() {
         .commit()
       await writeAuditLog(product, 'published')
       await load()
+      loadPendingChanges()
     } finally {
       setActionBusy(false)
     }
@@ -585,6 +588,7 @@ export function DashboardTool() {
     try {
       await client.patch(product._id).set({link_checked_at: now}).commit()
       setProducts((prev) => prev.map((p) => (p._id === product._id ? {...p, link_checked_at: now} : p)))
+      loadPendingChanges()
     } catch (err: any) {
       toast.push({status: 'error', title: 'Could not record check', description: err?.message || 'Unknown error'})
     }
@@ -610,6 +614,7 @@ export function DashboardTool() {
         ),
       )
       toast.push({status: 'success', title: `Marked "${product.name}" broken`})
+      loadPendingChanges()
     } finally {
       setActionBusy(false)
     }
@@ -656,6 +661,7 @@ export function DashboardTool() {
         ),
       )
       toast.push({status: 'success', title: `Switched "${product.name}" to a search link`})
+      loadPendingChanges()
     } finally {
       setActionBusy(false)
     }
