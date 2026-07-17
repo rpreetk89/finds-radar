@@ -197,5 +197,13 @@ export default defineType({
       description: 'Exclude from the daily link checker. Use for valid products that trigger false positives.',
       initialValue: false,
     }),
+    defineField({
+      name: 'link_is_search_fallback',
+      title: 'Link Is Search Fallback',
+      type: 'boolean',
+      readOnly: true,
+      initialValue: false,
+      description: 'Set automatically when the exact product link went dead and was replaced with a marketplace search results link instead of retiring the card.',
+    }),
   ],
 })

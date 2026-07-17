@@ -27,6 +27,14 @@ interface Product {
   inactive_since?: string
   changed_by?: string
   link_checked_at?: string
+  marketplace_slug?: string
+  marketplace_name?: string
+  link_is_search_fallback?: boolean
+}
+
+interface MarketplaceOption {
+  slug: string
+  name: string
 }
 
 const INACTIVE_REASONS = [
@@ -164,6 +172,144 @@ function PushConfirmModal({
   )
 }
 
+// ── Review Queue — one focused item at a time, no returning to the table between checks ──
+
+function ReviewQueue({
+  items, marketplaceName, onOpenChecked, onMarkBroken, onUseSearch, canUseSearch, onExit,
+}: {
+  items: Product[]
+  marketplaceName: string
+  onOpenChecked: (p: Product) => void
+  onMarkBroken: (p: Product) => Promise<void>
+  onUseSearch: (p: Product) => Promise<void>
+  canUseSearch: (p: Product) => boolean
+  onExit: () => void
+}) {
+  const [index, setIndex] = useState(0)
+  const [tally, setTally] = useState({kept: 0, broken: 0, searched: 0, skipped: 0})
+  const [busy, setBusy] = useState(false)
+
+  const current = items[index]
+  const finished = index >= items.length
+
+  function advance(kind: 'kept' | 'broken' | 'searched' | 'skipped') {
+    setTally((t) => ({...t, [kind]: t[kind] + 1}))
+    setIndex((i) => i + 1)
+  }
+
+  async function handleBroken() {
+    setBusy(true)
+    try {
+      await onMarkBroken(current)
+      advance('broken')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleUseSearch() {
+    setBusy(true)
+    try {
+      await onUseSearch(current)
+      advance('searched')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function handleOpen() {
+    onOpenChecked(current)
+    window.open(current.affiliate_link, '_blank', 'noopener,noreferrer')
+  }
+
+  if (items.length === 0) {
+    return (
+      <Card padding={4} radius={2} border tone="positive">
+        <Stack space={3}>
+          <Text size={1} weight="semibold">Nothing to review — no published items match this filter.</Text>
+          <Button text="Back to list" mode="ghost" onClick={onExit} />
+        </Stack>
+      </Card>
+    )
+  }
+
+  if (finished) {
+    return (
+      <Card padding={5} radius={3} border tone="positive">
+        <Stack space={4}>
+          <Heading size={1}>Batch complete</Heading>
+          <Text size={1}>
+            Reviewed {items.length} — {tally.kept} still there, {tally.broken} marked broken
+            {tally.searched > 0 ? `, ${tally.searched} switched to search` : ''}
+            {tally.skipped > 0 ? `, ${tally.skipped} skipped` : ''}.
+          </Text>
+          <Button text="Done" tone="positive" onClick={onExit} style={{alignSelf: 'flex-start'}} />
+        </Stack>
+      </Card>
+    )
+  }
+
+  return (
+    <Card padding={5} radius={3} border tone="primary">
+      <Stack space={4}>
+        <Flex align="center" justify="space-between" wrap="wrap" gap={2}>
+          <Text size={1} muted>Reviewing {marketplaceName} — item {index + 1} of {items.length}</Text>
+          <Button text="Exit queue" mode="ghost" fontSize={1} onClick={onExit} />
+        </Flex>
+
+        <Stack space={2}>
+          <Heading size={2}>{current.name}</Heading>
+          <Text size={1} muted>
+            Last checked: {current.link_checked_at ? new Date(current.link_checked_at).toLocaleDateString() : 'Never'}
+          </Text>
+        </Stack>
+
+        <Button
+          text="Open & Check →"
+          icon={LaunchIcon}
+          tone="primary"
+          onClick={handleOpen}
+          style={{alignSelf: 'flex-start'}}
+        />
+
+        <Flex gap={2} wrap="wrap">
+          <Button
+            text="Still There"
+            tone="positive"
+            icon={CheckmarkCircleIcon}
+            disabled={busy}
+            onClick={() => advance('kept')}
+          />
+          <Button
+            text={busy ? 'Marking…' : 'Mark Broken'}
+            tone="critical"
+            icon={RemoveCircleIcon}
+            disabled={busy}
+            onClick={handleBroken}
+          />
+          {canUseSearch(current) && (
+            <Button
+              text={busy ? 'Switching…' : 'Use Search Instead'}
+              mode="ghost"
+              tone="caution"
+              disabled={busy}
+              onClick={handleUseSearch}
+            />
+          )}
+          <Button
+            text="Skip"
+            mode="ghost"
+            disabled={busy}
+            onClick={() => advance('skipped')}
+          />
+        </Flex>
+
+        <Text size={0} muted>{tally.kept} kept · {tally.broken} broken · {tally.skipped} skipped</Text>
+      </Stack>
+    </Card>
+  )
+}
+
 // ── Main Dashboard ─────────────────────────────────────────────────────────────
 
 export function DashboardTool() {
@@ -174,11 +320,16 @@ export function DashboardTool() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [filterStatus, setFilterStatus] = useState<string>('inactive')
+  const [filterMarketplace, setFilterMarketplace] = useState<string>('all')
+  const [marketplaces, setMarketplaces] = useState<MarketplaceOption[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [actionBusy, setActionBusy] = useState(false)
   const [showDeactivate, setShowDeactivate] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [queueActive, setQueueActive] = useState(false)
+  const [queueItems, setQueueItems] = useState<Product[]>([])
+  const [queueBatchSize, setQueueBatchSize] = useState(15)
 
   const currentDataset = client.config().dataset
   const siteLabel = currentDataset === 'production' ? 'live production site' : `${currentDataset} preview site`
@@ -201,7 +352,9 @@ export function DashboardTool() {
         client.fetch<number>(`count(*[_type == "product" && status == "inactive" && defined(inactive_since) && inactive_since < "${cutoff}" && !defined(deleted_at)])`),
         client.fetch<Product[]>(`
           *[_type == "product" && !defined(deleted_at)] | order(_createdAt desc) [0...200] {
-            _id, name, status, affiliate_link, inactive_reason, inactive_since, changed_by, link_checked_at
+            _id, name, status, affiliate_link, inactive_reason, inactive_since, changed_by, link_checked_at,
+            link_is_search_fallback,
+            "marketplace_slug": marketplace->slug.current, "marketplace_name": marketplace->name
           }
         `),
       ])
@@ -213,6 +366,12 @@ export function DashboardTool() {
   }, [client])
 
   useEffect(() => {load()}, [load])
+
+  useEffect(() => {
+    client
+      .fetch<MarketplaceOption[]>(`*[_type == "marketplace"]{"slug": slug.current, name} | order(name asc)`)
+      .then(setMarketplaces)
+  }, [client])
 
   // ── Push changes to site ─────────────────────────────────────────────────────
   const loadPendingChanges = useCallback(async () => {
@@ -272,6 +431,7 @@ export function DashboardTool() {
 
   // ── Filtering ─────────────────────────────────────────────────────────────
   const visibleProducts = products.filter((p) => {
+    if (filterMarketplace !== 'all' && p.marketplace_slug !== filterMarketplace) return false
     if (filterStatus === 'all') return true
     if (filterStatus === 'inactive') return p.status === 'inactive'
     if (filterStatus === 'draft') return p.status === 'draft' || !p.status
@@ -419,6 +579,100 @@ export function DashboardTool() {
     }
   }
 
+  // ── Manual link check — records that a human looked at this URL ───────────
+  async function markChecked(product: Product) {
+    const now = new Date().toISOString()
+    try {
+      await client.patch(product._id).set({link_checked_at: now}).commit()
+      setProducts((prev) => prev.map((p) => (p._id === product._id ? {...p, link_checked_at: now} : p)))
+    } catch (err: any) {
+      toast.push({status: 'error', title: 'Could not record check', description: err?.message || 'Unknown error'})
+    }
+  }
+
+  // ── One-click broken-link triage — skips the reason picker for speed ──────
+  // Updates local state instead of a full reload, so this stays smooth inside the Review Queue.
+  async function markBroken(product: Product) {
+    setActionBusy(true)
+    try {
+      const changedBy = currentUser?.email || 'operator'
+      const now = new Date().toISOString()
+      await client
+        .patch(product._id)
+        .set({status: 'inactive', inactive_reason: 'broken_link', inactive_since: now, changed_by: changedBy, link_checked_at: now})
+        .commit()
+      await writeAuditLog(product, 'inactive', 'broken_link')
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === product._id
+            ? {...p, status: 'inactive', inactive_reason: 'broken_link', inactive_since: now, changed_by: changedBy, link_checked_at: now}
+            : p,
+        ),
+      )
+      toast.push({status: 'success', title: `Marked "${product.name}" broken`})
+    } finally {
+      setActionBusy(false)
+    }
+  }
+
+  // ── Search-link fallback — for marketplaces with thin/fast-turnover inventory,
+  // swap a dead exact-product link for a live search instead of retiring the card.
+  // Query is derived from the product name (not the original search that found it —
+  // that's discarded at capture time now that the bookmarklet trims tracking params).
+  function buildSearchUrl(product: Product): string | null {
+    const query = encodeURIComponent(product.name)
+    if (product.marketplace_slug === 'temu-us') {
+      return `https://www.temu.com/search_result.html?search_key=${query}`
+    }
+    return null
+  }
+
+  async function useSearchInstead(product: Product) {
+    const searchUrl = buildSearchUrl(product)
+    if (!searchUrl) return
+    setActionBusy(true)
+    try {
+      const changedBy = currentUser?.email || 'operator'
+      const now = new Date().toISOString()
+      // Also re-publishes with cleared inactive fields, so this works the same whether
+      // called mid-review (already published, a no-op on those fields) or on a row
+      // that's already marked inactive from the table.
+      const patch = {
+        affiliate_link: searchUrl,
+        link_is_search_fallback: true,
+        link_checked_at: now,
+        status: 'published',
+        inactive_reason: null,
+        inactive_since: null,
+        changed_by: changedBy,
+      }
+      await client.patch(product._id).set(patch).commit()
+      if (product.status === 'inactive') await writeAuditLog(product, 'published')
+      setProducts((prev) =>
+        prev.map((p) =>
+          p._id === product._id
+            ? {...p, ...patch, inactive_reason: undefined, inactive_since: undefined}
+            : p,
+        ),
+      )
+      toast.push({status: 'success', title: `Switched "${product.name}" to a search link`})
+    } finally {
+      setActionBusy(false)
+    }
+  }
+
+  // ── Review Queue — batch of published items for the current marketplace filter,
+  // oldest-checked (or never-checked) first ─────────────────────────────────
+  function startQueue() {
+    const candidates = products
+      .filter((p) => p.status === 'published' && (filterMarketplace === 'all' || p.marketplace_slug === filterMarketplace))
+      .slice()
+      .sort((a, b) => (a.link_checked_at || '').localeCompare(b.link_checked_at || ''))
+      .slice(0, queueBatchSize)
+    setQueueItems(candidates)
+    setQueueActive(true)
+  }
+
   if (loading) {
     return <Flex align="center" justify="center" padding={8}><Spinner /></Flex>
   }
@@ -516,6 +770,40 @@ export function DashboardTool() {
               </Select>
             </Box>
 
+            <Box style={{width: 180}}>
+              <Select
+                value={filterMarketplace}
+                onChange={(e) => {
+                  setFilterMarketplace((e.target as HTMLSelectElement).value)
+                  setSelected(new Set())
+                }}
+              >
+                <option value="all">All marketplaces</option>
+                {marketplaces.map((m) => (
+                  <option key={m.slug} value={m.slug}>{m.name}</option>
+                ))}
+              </Select>
+            </Box>
+
+            <Box style={{width: 110}}>
+              <Select
+                value={queueBatchSize}
+                onChange={(e) => setQueueBatchSize(Number((e.target as HTMLSelectElement).value))}
+              >
+                <option value={10}>10 items</option>
+                <option value={15}>15 items</option>
+                <option value={20}>20 items</option>
+              </Select>
+            </Box>
+            <Button
+              text="Start URL Check Queue"
+              icon={LaunchIcon}
+              tone="primary"
+              mode="ghost"
+              fontSize={1}
+              onClick={startQueue}
+            />
+
             {/* Action buttons — show when items selected */}
             {selected.size > 0 && (
               <Flex gap={2} style={{marginLeft: 'auto'}}>
@@ -542,6 +830,19 @@ export function DashboardTool() {
             )}
           </Flex>
 
+          {/* Review Queue replaces the table while active */}
+          {queueActive ? (
+            <ReviewQueue
+              items={queueItems}
+              marketplaceName={filterMarketplace === 'all' ? 'all marketplaces' : (marketplaces.find((m) => m.slug === filterMarketplace)?.name || filterMarketplace)}
+              onOpenChecked={markChecked}
+              onMarkBroken={markBroken}
+              onUseSearch={useSearchInstead}
+              canUseSearch={(p) => buildSearchUrl(p) !== null}
+              onExit={() => setQueueActive(false)}
+            />
+          ) : (
+          <>
           {/* Product table */}
           {visibleProducts.length === 0 ? (
             <Card padding={4} border radius={2} tone="positive">
@@ -585,7 +886,14 @@ export function DashboardTool() {
                         />
                       </td>
                       <td style={{padding: '10px 14px', maxWidth: 240}}>
-                        <Text size={1} weight="semibold">{p.name}</Text>
+                        <Flex align="center" gap={2} wrap="wrap">
+                          <Text size={1} weight="semibold">{p.name}</Text>
+                          {p.link_is_search_fallback && (
+                            <Badge tone="caution" fontSize={0} mode="outline">
+                              🔍 Search link — find a replacement
+                            </Badge>
+                          )}
+                        </Flex>
                       </td>
                       <td style={{padding: '10px 14px', color: 'var(--card-muted-fg-color)', maxWidth: 200}}>
                         <Text size={1} muted style={{fontFamily: 'monospace', fontSize: 11}}>
@@ -614,6 +922,16 @@ export function DashboardTool() {
                               onClick={() => reEnable(p)}
                             />
                           )}
+                          {p.status === 'inactive' && buildSearchUrl(p) && (
+                            <Button
+                              text={actionBusy ? '…' : 'Use Search Instead'}
+                              mode="ghost"
+                              tone="caution"
+                              fontSize={1}
+                              disabled={actionBusy}
+                              onClick={() => useSearchInstead(p)}
+                            />
+                          )}
                           {p.affiliate_link && (
                             <Button
                               as="a"
@@ -625,6 +943,18 @@ export function DashboardTool() {
                               mode="ghost"
                               tone="default"
                               fontSize={1}
+                              onClick={() => markChecked(p)}
+                            />
+                          )}
+                          {p.status !== 'inactive' && (
+                            <Button
+                              text={actionBusy ? '…' : 'Mark Broken'}
+                              icon={RemoveCircleIcon}
+                              tone="critical"
+                              mode="ghost"
+                              fontSize={1}
+                              disabled={actionBusy}
+                              onClick={() => markBroken(p)}
                             />
                           )}
                         </Flex>
@@ -641,6 +971,8 @@ export function DashboardTool() {
               Showing {visibleProducts.length} products.
               {filterStatus === 'archived' && ` Archived = inactive for ${ARCHIVE_DAYS}+ days.`}
             </Text>
+          )}
+          </>
           )}
         </Stack>
 
