@@ -10,11 +10,17 @@ permalink: /categories/index.html
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     {% for catPage in collections.categoryPages %}
       {% if catPage.isDefault %}
+        {% set icon = categoryIcons[catPage.catName] %}
         <a href="/categories/{{ catPage.catName }}/"
-           class="block p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-orange-300 dark:hover:border-brand-hover transition-all">
-          <div class="text-lg font-bold capitalize mb-1">{{ catPage.catDisplay }}</div>
-          <div class="text-sm text-slate-500 dark:text-slate-400">
-            {{ catPage.products.length }} find{{ 's' if catPage.products.length != 1 else '' }}
+           class="group flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-orange-300 dark:hover:border-brand-hover transition-all">
+          <div class="flex-none w-14 h-14 rounded-lg flex items-center justify-center bg-gradient-to-br {{ icon.gradient if icon else 'from-slate-400 to-slate-600' }} group-hover:scale-105 transition-transform duration-300">
+            <span class="text-2xl" role="img" aria-hidden="true">{{ icon.emoji if icon else '✨' }}</span>
+          </div>
+          <div>
+            <div class="text-lg font-bold capitalize mb-1">{{ catPage.catDisplay }}</div>
+            <div class="text-sm text-slate-500 dark:text-slate-400">
+              {{ catPage.products.length }} find{{ 's' if catPage.products.length != 1 else '' }}
+            </div>
           </div>
         </a>
       {% endif %}
