@@ -1,4 +1,4 @@
-// Bookmarklet source for capturing a product from Amazon/Flipkart while browsing.
+// Bookmarklet source for capturing a product from Amazon/Flipkart/Temu while browsing.
 // Run `node scripts/build-bookmarklet.js` after editing this file to regenerate
 // the javascript: URI to paste into a browser bookmark.
 //
@@ -8,9 +8,12 @@
 // description and categories are left blank — those need human judgment.
 // FindsRadar doesn't display price anywhere, so it's not captured here.
 //
-// Selectors are best-effort against known Amazon/Flipkart markup. Flipkart's
-// class names are hashed and change periodically — if capture comes back
-// empty on a real page, inspect the page and update the selectors below.
+// Selectors are best-effort against known Amazon/Flipkart/Temu markup. Flipkart's
+// and Temu's class names are hashed and change periodically — if capture comes
+// back empty on a real page, inspect the page and update the selectors below.
+// Temu's server-rendered HTML has no product data at all (title/OG tags are
+// injected client-side, sometimes after a delayed API call) — capture only
+// works once the page has visibly fully loaded.
 (function () {
   var MARKETPLACES = [
     { domain: 'amazon.ca', slug: 'amazon-ca', country: 'ca' },
@@ -47,6 +50,7 @@
     text('#productTitle'),
     text('.B_NuCI'),
     text('.VU-ZEz'),
+    text('._25g_jM0z'),
     attr('meta[property="og:title"]', 'content'),
     document.title
   );
@@ -55,6 +59,19 @@
   // stripping it yields the unscaled full-size image.
   function amazonFullSize(src) {
     return src ? src.replace(/\._[A-Za-z0-9,_]+_(?=\.)/, '') : src;
+  }
+
+  // Temu image URLs carry a resize query string like "?imageView2/2/w/800/q/70/format/avif" —
+  // stripping it yields the original unscaled image. No-op for non-Temu URLs.
+  function temuFullSize(src) {
+    return src && src.indexOf('kwcdn.com') !== -1 ? src.split('?')[0] : src;
+  }
+
+  // Each site-specific transform only acts on URLs matching its own pattern and is a
+  // no-op otherwise, so chaining them safely handles images from any known site (and
+  // leaves unknown sites' URLs untouched) without per-site branching logic.
+  function cleanImageUrl(src) {
+    return temuFullSize(amazonFullSize(src));
   }
 
   function allAttrs(sel, name) {
@@ -70,7 +87,7 @@
   var MAX_IMAGES = 6;
   var images = [];
   function addImage(src) {
-    var full = amazonFullSize(src);
+    var full = cleanImageUrl(src);
     if (full && images.indexOf(full) === -1 && images.length < MAX_IMAGES) images.push(full);
   }
 
@@ -78,12 +95,15 @@
   // full-size), then any og:image tags as a last resort.
   addImage(firstNonEmpty(attr('#landingImage', 'data-old-hires'), attr('#landingImage', 'src')));
   allAttrs('#altImages img', 'src').forEach(addImage);
+  allAttrs('img.wxWpAMbp._3eDhqCfZ', 'src').forEach(addImage);
+  allAttrs('div._3ACovDZO img', 'src').forEach(addImage);
   allAttrs('img._396cs4', 'src').forEach(addImage);
   allAttrs('img._2r_T1I', 'src').forEach(addImage);
   allAttrs('meta[property="og:image"]', 'content').forEach(addImage);
 
   var image = images.join('|');
-  var url = location.href;
+  // Drop tracking/referrer query params — the product resolves from the path alone.
+  var url = location.origin + location.pathname;
 
   function csvField(v) {
     return '"' + String(v || '').replace(/"/g, '""') + '"';
